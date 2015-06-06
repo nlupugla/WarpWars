@@ -16,3 +16,6 @@ TODO: allow users to create/join games from here
 @app.route('/')
 def default_root():
     return render_template(ROOT_TEMPLATE)
+
+if __name__ == '__main__':
+    app.run()
