@@ -8,13 +8,13 @@ ROOT_TEMPLATE = 'root.html'
 
 app = Flask(__name__)
 
-"""
-Render the root page
-Stub for now
-TODO: allow users to create/join games from here
-"""
 @app.route('/')
 def default_root():
+    """
+    Renders the root page.
+    TODO: allow users to create/join games from here
+    :return: the html for the root page
+    """
     return render_template(ROOT_TEMPLATE)
 
 if __name__ == '__main__':
