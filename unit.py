@@ -18,6 +18,24 @@ class Unit:
         self.name = 0
         self.x = 0  # x position
         self.y = 0  # y position
-        self.moves = [()] # list of 2-tuples enumerating potential moves
+        self.moves = [[]] # a list of paths which contain a list of moves
         self.abilities = {}
+
+class Move:
+    """
+    A relative move from one tile to another
+
+    Move objects hold the x and y position relative to a starting location and whether the moving can piece can "fly"
+    over obstacles.
+    """
+
+    def __init__(self):
+        """
+        Create a move with default values
+
+        :return: an initialized move object
+        """
+        self.x = 0
+        self.y = 0
+        self.fly = False # when true, can fly over obstructions and friendly pieces
 
