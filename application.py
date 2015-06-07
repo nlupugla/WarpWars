@@ -25,38 +25,34 @@ def default_root():
     """
     return render_template(ROOT_TEMPLATE)
 
-@app.route('/create_game.html')
-def create_game():
+@app.route('/create_game/<int:game_id>')
+def create_game(game_id):
     """
-    Create a new game.
+    Create a new game with the given game_id.
 
-    The id of the game to create must be given in the 'game_id' URL parameter.
+    If the indicated game already exists a redirect to '/' will be returned.
 
-    :return: nothing now; eventually the page for picking your King etc.
+    :param game_id: the game_id for the game to be created
+    :return: a redirect to '/game/<game_id>' or '/'
     """
-    # get and format the game_id, redirecting if it doesn't exist
-    gid = request.args.get('game_id')
-    if gid == None: return redirect('/')
-    game_id = int(gid)
-
     # don't clobber existing games
     # TODO: make this more robust somehow
-    if game_id in games: return 'This game_id already taken'
+    if game_id in games: return redirect('/')
 
     games[game_id] = Game() # is this what the constructor takes?
 
+    return redirect('/game/' + str(game_id))
 
-@app.route('/game.html')
-def game():
+@app.route('/game/<int:game_id>')
+def game(game_id):
     """
-    Renders the page for a game.
+    Renders the page for a given game.
 
-    The id of the game must be given in the 'game_id' URL parameter.
+    If the indicated game does not exist a redirect to '/' will be returned.
 
-    :return: the html for the game
+    :param game_id: the id of the game to display
+    :return: the html page displaying the game or a redirect to '/'
     """
-    game_id = request.args.get('game_id')
-
     # if there is no 'game_id' parameter, redirect
     if game_id == None: return redirect('/')
 
