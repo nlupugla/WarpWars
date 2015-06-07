@@ -10,8 +10,10 @@ def test_game():
     return_game.players = [player1, player2]
     return_game.active_color = WHITE
     return_game.deploy(WARPLING_TYPE, 5, 5)
+    print return_game.state()
     return_game.active_color = BLACK
     return_game.deploy(WARPLING_TYPE, 6, 6)
+    print return_game.state()
     return return_game
 
 if __name__ == '__main__':

@@ -23,6 +23,22 @@ class Unit:
         self.moves = [[]]  # a list of paths which contain a list of moves
         self.abilities = {}
 
+    def clone_unit(self, unit):
+        """
+        Copy constructor to make silly Python happy
+
+        :param unit: unit to copy
+        :return: a new unit with exactly the same values as the input
+        """
+        self.ID = unit.ID
+        self.name = unit.name
+        self.type = unit.type
+        self.color = unit.color
+        self.x = unit.x
+        self.y = unit.y
+        self.moves = unit.moves
+        self.abilities = unit.abilities
+
     def generate_dict(self):
         """
         Create a dictionary object containing all of the unit's data to be sent to the client.

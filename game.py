@@ -2,6 +2,7 @@ from json import dumps
 
 from constants import *
 from card_dictionary import CARD_DICTIONARY
+from unit import Unit
 
 class Game:
     """
@@ -69,7 +70,8 @@ class Game:
         self.units[unit.ID] = unit
 
     def take(self, x, y):
-        for unit in self.units:
+        for key in self.units:
+            unit = self.units[key]
             if unit.x == x and unit.y == y:
                 self.units.remove(unit)
                 return True
@@ -119,9 +121,11 @@ class Game:
         :return:
         """
         legality = False
-        #grab card by ID
+
+        # grab card by ID
         player = self.players[self.active_color]
         card = player.palette[card_ID]
+
         # check legality
         if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
         if x < 0 or y < 0: return legality
@@ -129,10 +133,12 @@ class Game:
         # if card.cost > player.warp: return legality
         # TODO: Implement a cap on the number of cards of the same type you can play?
 
-        unit = CARD_DICTIONARY[card]
+        unit = Unit()
+        unit.clone_unit(CARD_DICTIONARY[card])
         unit.color = self.active_color
         self.n_units_deployed += 1
         unit.ID = self.n_units_deployed
+        self.units[unit.ID] = unit
         self.place(unit, x, y)
         return True
 
@@ -154,8 +160,9 @@ class Game:
         """
 
         units = []
-        for unit in self.units:
-            units.append(self.units[unit].generate_dict())
+        for key in self.units:
+            unit = self.units[key]
+            units.append(unit.generate_dict())
         players = []
 #        for player in self.players:
 #            players.append(player.generate_dict())
