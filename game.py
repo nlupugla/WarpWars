@@ -63,7 +63,17 @@ class Game:
         # TODO: Do something about taking?
         unit.x = x
         unit.y = y
+        if self.board[x][y] == (not self.active_color):
+            self.take(x, y)
         self.board[x][y] = self.active_color
+        self.units[unit.ID] = unit
+
+    def take(self, x, y):
+        for unit in self.units:
+            if unit.x == x and unit.y == y:
+                self.units.remove(unit)
+                return True
+        return False
 
     def move(self, unit_ID, x, y):
         """
@@ -116,7 +126,7 @@ class Game:
         if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
         if x < 0 or y < 0: return legality
         if self.board[x][y] != EMPTY_TILE: return legality
-        if card.cost > player.warp: return legality
+        # if card.cost > player.warp: return legality
         # TODO: Implement a cap on the number of cards of the same type you can play?
 
         unit = CARD_DICTIONARY[card]
