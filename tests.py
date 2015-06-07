@@ -3,6 +3,14 @@ from unit import *
 from player import *
 from card_dictionary import *
 
+def test_game():
+    return_game = Game()
+    return_game.active_color = WHITE
+    return_game.place(CARD_DICTIONARY['warpling'], 5, 5)
+    return_game.active_color = BLACK
+    return_game.place(CARD_DICTIONARY['warpling'], 6, 6)
+    return return_game
+
 game = Game()
 player1 = Player(WHITE)
 player2 = Player(BLACK)
