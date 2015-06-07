@@ -11,8 +11,9 @@
 		<canvas id="board" width="810" height="810">This is a canvas! If you're reading this message, please upgrade to a better browser.</canvas>
 		<div id="info-box">
 			<h2 id="game-id">Game ID: {{ game_id }}</h2>
-			<h2 id="turn-indicator">Turn: WHITE</h2>
-			<h3 id="turn-number-indicator">Turn 1</h3>
+			<h2 id="turn-indicator">Turn: BLACK</h2>
+			<h3 id="turn-number-indicator">Turn 0</h3>
+			<h3 id="player-color-indicator">You are {% if player_color == 0 %} White {% else %} Black {% endif %}</h3>
 			<div id="mana-box">
 				<h4>MANA:</h4>
 				<h5 id="white-mana-indicator">WHITE: 0</h6>
@@ -45,7 +46,7 @@
 			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2});
 			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
 			var EMPTY_ID = 0;
-			var TurnOwnership = Object.freeze({WHITE: 0, BLACK: 1});
+			var PlayerColors = Object.freeze({WHITE: 0, BLACK: 1});
 			
 			// Click state tracking
 			var ClickStates = Object.freeze({NO_PREVIOUS_CLICK: 0, AWAITING_CLICK_FOR_MOVEMENT: 1, AWAITING_CLICK_FOR_DEPLOYMENT: 2});
@@ -56,7 +57,7 @@
 			// Game state tracking
 			var currentState = 0;
 			var playerColor = {{ player_color }}; // the player playing through this client
-			var currentTurn = TurnOwnership.WHITE;
+			var currentTurn = PlayerColors.BLACK;
 			var currentTurnNumber = 1;
 			var board = new Array(WIDTH);
 			var whiteMana = 0;
@@ -103,7 +104,7 @@
 			
 			// fill all user-facing interface elements
 			function updateInterface(){
-				if(currentTurn == TurnOwnership.WHITE){
+				if(currentTurn == PlayerColors.WHITE){
 					turnIndicator.innerHTML = "Turn: WHITE";
 				} else {
 					turnIndicator.innerHTML = "Turn: BLACK";
@@ -116,10 +117,10 @@
 			// end turn, handling all necessary cleanup
 			function endTurn(){
 				// flip the turn
-				if(currentTurn == TurnOwnership.WHITE){
-					currentTurn = TurnOwnership.BLACK;
+				if(currentTurn == PlayerColors.WHITE){
+					currentTurn = PlayerColors.BLACK;
 				} else {
-					currentTurn = TurnOwnership.WHITE;
+					currentTurn = PlayerColors.WHITE;
 				}
 				currentTurnNumber++;
 				updateInterface();
@@ -156,8 +157,8 @@
 				var y = convertToGridCoord(event.y);
 
 				if(clickState == ClickStates.NO_PREVIOUS_CLICK){
-					// can only pieces on your own turn
-					if(board[x][y].color == currentTurn){
+					// can only pieces on your own turn and if you are the active player
+					if((board[x][y].color == currentTurn) && (playerColor == currentTurn)){
 						firstX = x;
 						firstY = y;
 						
@@ -181,7 +182,7 @@
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 						
-						makeGetRequest('/update/game/' + game_id + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){})
+						makeGetRequest('/update/game/' + {{ game_id }} + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){})
 						
 						// flip the turn
 						endTurn();

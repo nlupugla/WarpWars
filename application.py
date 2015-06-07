@@ -7,7 +7,7 @@ from json import dumps
 from flask import Flask, redirect, render_template, session, url_for
 
 from constants import WHITE, BLACK
-from game import Game, move
+from game import Game
 from tests import test_game
 
 ROOT_TEMPLATE = 'root.html'
@@ -49,7 +49,7 @@ def create_game(game_id):
     if game_id in games: return redirect(url_for('root'))
 
     # set this player as white
-    session['color-' + str(game_id)] = WHITE
+    session['color-' + str(game_id)] = BLACK
 
     # actually create the game
     games[game_id] = test_game() #Game()
