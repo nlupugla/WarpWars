@@ -112,6 +112,7 @@
 				} else {
 					currentTurn = TurnOwnership.WHITE;
 				}
+				updateInterface();
 			}
 			
 			// returns a list of points moveable to by the piece on the given board square
@@ -143,7 +144,7 @@
 				// do we need to check that these are inside the board and handle them being outside?
 				var x = convertToGridCoord(event.x);
 				var y = convertToGridCoord(event.y);
-				alert('hella' + x + y);
+
 				if(clickState == ClickStates.NO_PREVIOUS_CLICK){
 					// can only pieces on your own turn
 					if(board[x][y].color == currentTurn){
@@ -171,7 +172,7 @@
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY);
 						
 						// flip the turn
-						endTurn()
+						endTurn();
 					}
 					// regardless of legality of the move, reset state and redraw
 					clickState = ClickStates.NO_PREVIOUS_CLICK;
