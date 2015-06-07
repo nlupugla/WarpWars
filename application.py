@@ -18,7 +18,7 @@ app = Flask(__name__)
 games = {}
 
 @app.route('/')
-def render_root():
+def root():
     """
     Render the root page.
 
@@ -40,7 +40,7 @@ def create_game(game_id):
     """
     # don't clobber existing games
     # TODO: make this more robust somehow
-    if game_id in games: return redirect('/')
+    if game_id in games: return redirect(url_for('root'))
 
     games[game_id] = Game()
 
@@ -57,7 +57,7 @@ def game(game_id):
     :return: the html page displaying the game or a redirect to '/'
     """
     # if the given game doesn't exist, redirect to '/'
-    if game_id == None: return redirect('/')
+    if game_id not in games: return redirect(url_for('root'))
 
     return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = url_for('static', filename = 'drawing.js'))
 
