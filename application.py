@@ -8,6 +8,7 @@ from flask import Flask, redirect, render_template, session, url_for
 
 from constants import WHITE, BLACK
 from game import Game
+from tests import test_game
 
 ROOT_TEMPLATE = 'root.html'
 GAME_TEMPLATE = 'game.html'
@@ -51,7 +52,7 @@ def create_game(game_id):
     session['color-' + str(game_id)] = WHITE
 
     # actually create the game
-    games[game_id] = Game()
+    games[game_id] = test_game() #Game()
     game_states[game_id] = 0
 
     return redirect('/game/' + str(game_id))
