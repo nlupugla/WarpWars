@@ -21,6 +21,17 @@
 		</div>
 		<script type="text/javascript" src="{{ drawing_file }}" ></script>
 		<script type="text/javascript">
+			// update client-side state with state from the server
+			function updateState(new_state){
+				// wipe the board, place all the new units
+				createBoard();
+				for(int i = 0; i < new_state['units'].length; i++){
+					unit = new_state['units'][i];
+					type = if(unit['type'] == 
+					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece()
+				}
+			}
+			
 			// Canvas setup
 			var canvas = document.getElementById('board');
 			var ctx = canvas.getContext('2d');
@@ -39,8 +50,9 @@
 			// Board constants
 			var WIDTH = LINES-1;
 			var HEIGHT = WIDTH;
-			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 3});
+			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2});
 			var PieceColors = Object.freeze({EMPTY: 0, WHITE: 1, BLACK: 2});
+			var EMPTY_ID = Object.freeze(0);
 			var TurnOwnership = Object.freeze({WHITE: 1, BLACK: 2});
 			
 			// Click state tracking
@@ -56,9 +68,10 @@
 			var blackMana = 0;
 			
 			// Constructor for a Piece
-			function Piece(type, color){
+			function Piece(type, color, id){
 				this.type = type;
 				this.color = color;
+				this.id = id;
 			}
 			
 			// perform initial setup of the canvas
@@ -73,7 +86,7 @@
 				for(var i = 0; i < WIDTH; i++){
 					board[i] = new Array(HEIGHT);
 					for(var j = 0; j < HEIGHT; j++){
-						board[i][j] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY);
+						board[i][j] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 					}
 				}
 			}
@@ -82,13 +95,13 @@
 			function placeStartingWarplings(){
 				for(var i = 0; i < WIDTH; i++){
 					if(i % 2 == 0){
-						board[i][0] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK);
-						board[i][2] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK);
-						board[i][HEIGHT - 3] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE);
-						board[i][HEIGHT - 1] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE);
+						board[i][0] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4);
+						board[i][2] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4+1);
+						board[i][HEIGHT - 3] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+2);
+						board[i][HEIGHT - 1] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+3);
 					} else {
-						board[i][1] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK);
-						board[i][HEIGHT - 2] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE);
+						board[i][1] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4);
+						board[i][HEIGHT - 2] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+1);
 					}
 				}
 			}
@@ -169,7 +182,7 @@
 					if(getMoveableSpaces(firstX, firstY, board[firstX][firstY]).some(function(e){return ((e[0] == x) && (e[1] == y))})){
 						// actually move the piece
 						board[x][y] = board[firstX][firstY];
-						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY);
+						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 						
 						// flip the turn
 						endTurn();
