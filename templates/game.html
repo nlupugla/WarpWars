@@ -215,6 +215,30 @@
 				redraw();
 				updateInterface();
 			}
+			
+			// make AJAX GET request
+			function makeGetRequest(url, callback){
+				var request = new XMLHttpRequest();
+				request.open('GET', url, true);
+				
+				request.onload = function(){
+					if (request.status >= 200 && request.status < 400) {
+						// success
+						var data = JSON.parse(request.responseText);
+						callback(data);
+					} else {
+						// We reached our target server, but it returned an error
+					}
+				};
+
+				request.onerror = function() {
+					// There was a connection error of some sort
+				};
+
+				request.send();
+			}
+			
+			// var refreshID = window.setInterval(makeGetRequest, 50, update_state, '{{ state }} ');
 		</script>
 	</body>
 </html>
