@@ -26,6 +26,7 @@ class Game:
             self.board.append([EMPTY_TILE]*BOARD_HEIGHT)
         self.players = []  # list of players in the game
         self.n_units_deployed = 0 # total number of units deployed in the game
+        self.state_ID = 0 # total number different states TODO: have methods increment this when state changes
         self.over = False  # set to true when the game ends
         pass
 
@@ -49,7 +50,7 @@ class Game:
         if self.phase == CLEAN_UP_PHASE:
             inactive_player = self.players[not self.active_color]
             inactive_player.warp = 0
-            inactive_player.draw()
+#            inactive_player.draw()
         self.phase = (self.phase + 1)%3
 
     def place(self, unit, x, y):
@@ -61,19 +62,18 @@ class Game:
         :param y: y position
         :return: nothing
         """
-        # TODO: Do something about taking?
         unit.x = x
         unit.y = y
-        if self.board[x][y] == (not self.active_color):
+        if self.board[x][y] == (not unit.color):
             self.take(x, y)
-        self.board[x][y] = self.active_color
+        self.board[x][y] = unit.color
         self.units[unit.ID] = unit
 
     def take(self, x, y):
         for key in self.units:
-            unit = self.units[key]
-            if unit.x == x and unit.y == y:
-                self.units.remove(unit)
+            if self.units[key].x == x and self.units[key].y == y:
+                del self.units[key]
+                print "deleted at key" + str(key)
                 return True
         return False
 
@@ -105,7 +105,7 @@ class Game:
                 tile_value = self.board[x_tracker][y_tracker]
                 # if something is at the destination, the move is illegal
                 if (tile_value == OBSTRUCTION and not move.fly) or \
-                        (tile_value == self.active_color and not move.fly): break
+                        (tile_value == unit.color and not move.fly): break
                 if x_tracker == x and y_tracker == y:
                     self.place(unit, x, y)
                     legality = True
@@ -124,6 +124,7 @@ class Game:
 
         # grab card by ID
         player = self.players[self.active_color]
+        # TODO: This is grabing by card type right now
         card = player.palette[card_ID]
 
         # check legality
@@ -173,6 +174,7 @@ class Game:
             'units': units,
             'players': players,
             'n_units_deployed': self.n_units_deployed,
+            'state_ID': self.state_ID,
             'over': self.over,
         }
         return dictionary
