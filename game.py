@@ -93,3 +93,30 @@ class Game:
         """
         json = "Look at the llamas!"
         return json
+
+    def generate_dict(self):
+        """
+        Create a dictionary object containing all of the game's data to be sent to the client.
+
+        :return: a dictionary formatted to be an argument for json.dumps
+        """
+
+        units = []
+        for unit in self.units:
+            units.append(unit.generate_dict())
+        players = []
+#        for player in self.players:
+#            players.append(player.generate_dict())
+        dictionary = {
+            'turn': self.turn,
+            'active_color': self.active_color,
+            'phase': self.phase,
+            'units': units,
+            'players': players,
+            'over': self.over,
+        }
+        return dictionary
+
+import json
+
+print json.dumps(Game().generate_dict())
