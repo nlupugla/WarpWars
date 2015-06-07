@@ -4,8 +4,9 @@ YOLO SWAG 420
 
 from json import dumps
 
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, render_template, session, url_for
 
+from constants import WHITE, BLACK
 from game import Game
 
 ROOT_TEMPLATE = 'root.html'
@@ -13,6 +14,9 @@ GAME_TEMPLATE = 'game.html'
 ERROR_404_TEMPLATE = '404.html'
 
 app = Flask(__name__)
+
+# secret key for session storage
+app.secret_key = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
 
 # master list of all currently running games
 games = {}
@@ -40,9 +44,35 @@ def create_game(game_id):
     """
     # don't clobber existing games
     # TODO: make this more robust somehow
-    if game_id in games: return redirect(url_for('root'))
+    if game_id not in games: return redirect(url_for('root'))
 
+    # set this player as white
+    session['color-' + str(game_id)] = WHITE
+
+    # actually create the game
     games[game_id] = Game()
+
+    return redirect('/game/' + str(game_id))
+
+@app.route('/join/game/<int:game_id>/as/<color>')
+def join_game(game_id, color):
+    """
+    Join the given game as the player of the given color.
+
+    If the indicated game does not exist or the color is not valid a redirect to '/' will be returned.
+
+    :param game_id: the game_id of the game to join
+    :param color: the color the player is joining as
+    :return: a redirect to '/game/<game_id>' or '/'
+    """
+    # can only join games that actually exist
+    if game_id not in games: return redirect(url_for('root'))
+
+    # can only be white or black
+    if color not in ('white', 'black'): return redirect(url_for('root'))
+
+    # set the player's color as given
+    session['color-' + str(game_id)] = WHITE if color == 'white' else BLACK
 
     return redirect('/game/' + str(game_id))
 
@@ -61,7 +91,8 @@ def game(game_id):
 
     drawing_file = url_for('static', filename = 'drawing.js')
     state = url_for('game_status', game_id = game_id)
-    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state)
+    color = session['color-' + str(game_id)]
+    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state, player_color = color)
 
 @app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>', methods = ['POST'])
 def game_update_move(game_id, unit_id, x, y):
