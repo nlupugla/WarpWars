@@ -1,8 +1,5 @@
 from constants import *
 
-STARTING_PLAYER = WHITE
-
-
 class Game:
     """
     This represents a game.
@@ -16,7 +13,7 @@ class Game:
 
         :return: an initialized Game object
         """
-        self.current_turn = 0  # 1 on the first turn, 2 on the second turn...
+        self.turn = 0  # 1 on the first turn, 2 on the second turn...
         self.active_color = WHITE  # color currently taking its turn
         self.phase = QUEEN_PHASE  # int indicating current phase
         self.units = {} # list of units in play
@@ -32,7 +29,7 @@ class Game:
         Increment turn counter and update active player
         :return: nothing
         """
-        self.crnt_turn += 1
+        self.turn += 1
         self.active_color = int(not self.active_color)
 
     def next_phase(self):
@@ -57,7 +54,22 @@ class Game:
         :param y: y position of move
         :return: If the move was legal, return True, otherwise False
         """
+        # check that the destination is on the board
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
+
+        legality = False
         unit = self.units[unit_ID]
+        for path in unit.moves:
+            x_tracker = unit.x
+            y_tracker = unit.y
+            for move in path:
+                # if something is at the destination, the move is illegal
+                x_tracker += move.x
+                y_tracker += move.y
+                tile_value = self.board[x_tracker][y_tracker]
+                if (tile_value == OBSTRUCTION and not move.fly) or \
+                        (tile_value == self.active_color and not move.fly): break
+
 
         return True
 
