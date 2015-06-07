@@ -10,12 +10,24 @@
 	<body onload=setup()>
 		<canvas id="board" width="810" height="810">This is a canvas! If you're reading this message, please upgrade to a better browser.</canvas>
 		<div id="info-box">
-			<div id="game-id">{{ game_id }}</div>
+			<h2 id="game-id">Game ID: {{ game_id }}</h2>
+			<h2 id="turn-indicator">Turn: WHITE</h2>
+			<div id="mana-box">
+				<h4>MANA:</h4>
+				<h5 id="white-mana-indicator">WHITE: 0</h6>
+				<h5 id="black-mana-indicator">BLACK: 0</h6>
+			</div>
+			
 		</div>
 		<script type=text/javascript>
 			// Canvas setup
 			var canvas = document.getElementById('board');
 			var ctx = canvas.getContext('2d');
+			
+			// DOM elements for interface
+			var turnIndicator = document.getElementById("turn-indicator");
+			var whiteManaIndicator = document.getElementById("white-mana-indicator");
+			var blackManaIndicator = document.getElementById("black-mana-indicator");
 			
 			// Constants for drawing the board
 			var MIN = 5;
@@ -39,8 +51,8 @@
 			// Game state tracking
 			var currentTurn = TurnOwnership.WHITE;
 			var board = new Array(WIDTH);
-			// var whiteMana = 0;
-			// var blackMana = 0;
+			var whiteMana = 0;
+			var blackMana = 0;
 			
 			// Constructor for a Piece
 			function Piece(type, color){
@@ -77,6 +89,27 @@
 						board[i][1] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK);
 						board[i][HEIGHT - 2] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE);
 					}
+				}
+			}
+			
+			// fill all user-facing interface elements
+			function updateInterface(){
+				if(currentTurn == TurnOwnership.WHITE){
+					turnIndicator.innerHTML = "Turn: WHITE";
+				} else {
+					turnIndicator.innerHTML = "Turn: BLACK";
+				}
+				whiteManaIndicator.innerHTML = "WHITE: " + whiteMana;
+				blackManaIndicator.innerHTML = "BLACK: " + blackMana;
+			}
+			
+			// end turn, handling all necessary cleanup
+			function endTurn(){
+				// flip the turn
+				if(currentTurn == TurnOwnership.WHITE){
+					currentTurn = TurnOwnership.BLACK;
+				} else {
+					currentTurn = TurnOwnership.WHITE;
 				}
 			}
 			
@@ -241,6 +274,9 @@
 						// actually move the piece
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY);
+						
+						// flip the turn
+						endTurn()
 					}
 					// regardless of legality of the move, reset state and redraw
 					clickState = ClickStates.NO_PREVIOUS_CLICK;
