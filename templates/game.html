@@ -206,6 +206,9 @@
 			
 			// update client-side state with state from the server
 			function updateState(new_state){
+				// update currentState
+				currentState = new_state['state_ID']
+				
 				// wipe the board, place all the new units
 				createBoard();
 				for(var i = 0; i < new_state['units'].length; i++){

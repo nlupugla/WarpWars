@@ -21,7 +21,6 @@ app.secret_key = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
 
 # master list of all currently running games; list of their states
 games = {}
-game_states = {} # move this into Game eventually
 
 @app.route('/')
 def root():
@@ -53,7 +52,6 @@ def create_game(game_id):
 
     # actually create the game
     games[game_id] = test_game() #Game()
-    game_states[game_id] = 0
 
     return redirect('/game/' + str(game_id))
 
