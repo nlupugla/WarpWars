@@ -1,3 +1,29 @@
 import unit
-# TODO: Make this a mapping between units and cards
-CARD_DICTIONARY = {}
+from constants import *
+from move import *
+fly = True
+
+knight = unit.Unit()
+knight.moves = [
+    [Move(NORTH, 2, fly), Move(EAST)],
+    [Move(NORTH, 2, fly), Move(WEST)],
+    [Move(EAST, 2, fly), Move(NORTH)],
+    [Move(EAST, 2, fly), Move(SOUTH)],
+    [Move(SOUTH, 2, fly), Move(EAST)],
+    [Move(SOUTH, 2, fly), Move(WEST)],
+    [Move(WEST, 2, fly), Move(NORTH)],
+    [Move(WEST, 2, fly), Move(SOUTH)],
+]
+
+warpling = unit.Unit()
+warpling.moves = [
+    [Move(NORTH)],
+    [Move(EAST)],
+    [Move(SOUTH)],
+    [Move(WEST)]
+]
+
+CARD_DICTIONARY = {
+    'knight': knight,
+    'warpling': warpling
+}

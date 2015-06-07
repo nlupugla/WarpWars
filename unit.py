@@ -7,7 +7,6 @@ class Unit:
     Each unit has an x and y position on the board, a list of legal moves, a list of abilities, a name, and a unique
     identifier to distinguish it from others of the same name.
     """
-    n_deployed = 0
 
     def __init__(self):
         """
@@ -15,8 +14,7 @@ class Unit:
 
         :return: an initialized unit object
         """
-        self.ID = Unit.n_deployed
-        Unit.n_deployed += 1
+        self.ID = 0
         self.name = ""
         self.type = 0
         self.color = WHITE

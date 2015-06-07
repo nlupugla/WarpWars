@@ -20,8 +20,11 @@ class Game:
         self.active_color = WHITE  # color currently taking its turn
         self.phase = QUEEN_PHASE  # int indicating current phase
         self.units = {} # list of units in play
-        self.board = [[]] # 2d array of board elements
+        self.board = [] # 2d array of board elements
+        for x in range(BOARD_LENGTH):
+            self.board.append([EMPTY_TILE]*BOARD_HEIGHT)
         self.players = []  # list of players in the game
+        self.n_units_deployed = 0 # total number of units deployed in the game
         self.over = False  # set to true when the game ends
         pass
 
@@ -96,9 +99,6 @@ class Game:
                     legality = True
                     return legality
 
-
-        return True
-
     def deploy(self, card_ID, x, y):
         """
         Deploys a unit onto the board.
@@ -118,7 +118,11 @@ class Game:
         if self.board[x][y] != EMPTY_TILE: return legality
         if card.cost > player.warp: return legality
         # TODO: Implement a cap on the number of cards of the same type you can play?
+
         unit = CARD_DICTIONARY[card]
+        unit.color = self.active_color
+        self.n_units_deployed += 1
+        unit.ID = self.n_units_deployed
         self.place(unit, x, y)
         return True
 
@@ -151,6 +155,7 @@ class Game:
             'phase': self.phase,
             'units': units,
             'players': players,
+            'n_units_deployed': self.n_units_deployed,
             'over': self.over,
         }
         return dictionary

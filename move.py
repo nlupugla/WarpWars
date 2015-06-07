@@ -8,15 +8,31 @@ class Move:
     over obstacles.
     """
 
-    def __init__(self):
+    def __init__(self, direction=-1, magnitude=1, fly=False):
         """
-        Create a move with default values
+        Create a move from the input values.
 
-        :return: an initialized move object
+        :param direction: direction of the move; accepted values are NORTH, EAST, SOUTH, WEST
+        :param magnitude: magnitude of the move in the given direction
+        :param fly: when True, the move ignores obstructions
+        :return: a Move object specifying a new location relative to the starting point
         """
-        self.x = 0
-        self.y = 0
-        self.fly = False  # when true, can fly over obstructions and friendly pieces
+        if direction == -1:
+            self.x = 0
+            self.y = 0
+        if direction == NORTH:
+            self.x = 0
+            self.y = magnitude
+        elif direction == EAST:
+            self.x = magnitude
+            self.y = 0
+        elif direction == SOUTH:
+            self.x = 0
+            self.y = -1*magnitude
+        elif direction == WEST:
+            self.x = -1*magnitude
+            self.y = 0
+        self.fly = fly
 
     def generate_dict(self):
         """
