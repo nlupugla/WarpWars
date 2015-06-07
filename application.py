@@ -68,14 +68,30 @@ def game_update_move(game_id, unit_id, x, y):
 
     The backend checks whether the move is valid and then returns the new game state. This state, or an error message if the move was illegal, is then returned.
 
+    An error will also be returned if the indicated game does not exist.
+
     :param game_id: the game containing the unit that is moving
     :param unit_id: the id of the unit that is moving
     :param x: the x-coordinate the piece is moving to
     :param y: the y-coordinate the piece is moving to
     :return: the game state after the move, as JSON
     """
+    if game_id not in games: return format_error('Game does not exist')
     # TODO: actually send the data to the backend and verify it before returning a legit state update
-    return format_error('default success!')
+    return format_error('default success!') # game_status(game_id)
+
+@app.route('state/game/<int:game_id>')
+def game_status(game_id):
+    """
+    Fetch the full game state of a given game.
+
+    If a game with the given game_id does not exist an error will be returned instead.
+
+    :param game_id: the id of the game whose status is to be fetched
+    :return: the current game state or an error, as JSON
+    """
+    if game_id not in games: return format_error('Game does not exist')
+    return None
 
 @app.errorhandler(404)
 def page_not_found(error):
