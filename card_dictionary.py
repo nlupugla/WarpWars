@@ -14,6 +14,7 @@ knight.moves = [
     [Move(WEST, 2, fly), Move(NORTH)],
     [Move(WEST, 2, fly), Move(SOUTH)],
 ]
+knight.type = KNIGHT_TYPE
 
 warpling = unit.Unit()
 warpling.moves = [
@@ -22,6 +23,7 @@ warpling.moves = [
     [Move(SOUTH)],
     [Move(WEST)]
 ]
+warpling.type = WARPLING_TYPE
 
 CARD_DICTIONARY = {
     'knight': knight,

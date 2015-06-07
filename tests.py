@@ -9,9 +9,9 @@ def test_game():
     player2 = Player(BLACK)
     return_game.players = [player1, player2]
     return_game.active_color = WHITE
-    return_game.deploy(0, 5, 5)
+    return_game.deploy(WARPLING_TYPE, 5, 5)
     return_game.active_color = BLACK
-    return_game.deploy(1, 6, 6)
+    return_game.deploy(WARPLING_TYPE, 6, 6)
     return return_game
 
 if __name__ == '__main__':
