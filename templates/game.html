@@ -181,6 +181,8 @@
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 						
+						makeGetRequest('/update/game/' + game_id + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){})
+						
 						// flip the turn
 						endTurn();
 					}

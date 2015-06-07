@@ -7,7 +7,7 @@ from json import dumps
 from flask import Flask, redirect, render_template, session, url_for
 
 from constants import WHITE, BLACK
-from game import Game
+from game import Game, move
 from tests import test_game
 
 ROOT_TEMPLATE = 'root.html'
@@ -99,7 +99,7 @@ def game(game_id):
     return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state,
                            changed = changed, player_color = color)
 
-@app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>', methods = ['POST'])
+@app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>')
 def game_update_move(game_id, unit_id, x, y):
     """
     Move a given unit in the given game to the given position.
@@ -114,10 +114,12 @@ def game_update_move(game_id, unit_id, x, y):
     :param y: the y-coordinate the piece is moving to
     :return: the game state after the move, as JSON
     """
-    if game_id not in games: return format_error('Game does not exist')
+    if game_id not in games: return format_response('error', 'Game does not exist')
     # TODO: actually send the data to the backend and verify it before doing a legit state update
+    # call Game.move
+    games[game_id].move(unit_id, x, y)
     # TODO: game_states[game_id] += 1
-    return format_error('default success!') # game_status(game_id)
+    return format_response('success', 'default success!') # game_status(game_id)
 
 @app.route('/changed/game/<int:game_id>/<int:last_state>')
 def game_changed(game_id, last_state):
@@ -128,7 +130,7 @@ def game_changed(game_id, last_state):
     :param last_state: the last state seen by the client
     :return: whether or not there is new state to be fetched or an error, as JSON
     """
-    if game_id not in games: return format_error('Game does not exist')
+    if game_id not in games: return format_response('error', 'Game does not exist')
     return dumps({'changed': True if game_states[game_id] > last_state else False}) # absolutely disgusting
 
 @app.route('/state/game/<int:game_id>')
@@ -141,7 +143,7 @@ def game_status(game_id):
     :param game_id: the id of the game whose status is to be fetched
     :return: the current game state or an error, as JSON
     """
-    if game_id not in games: return format_error('Game does not exist')
+    if game_id not in games: return format_response('error', 'Game does not exist')
     return games[game_id].state()
 
 @app.errorhandler(404)
@@ -154,14 +156,15 @@ def page_not_found(error):
     """
     return render_template(ERROR_404_TEMPLATE)
 
-def format_error(error_message):
+def format_response(status, message):
     """
-    Format an error message as a JSON object suitable for returning to the browser.
+    Format a status and message as a JSON object suitable for returning to the browser.
 
-    :param error_message: the error message to format
+    :param status: the status of the message (eg 'error', 'success')
+    :param message: the message to format
     :return: a JSON object containing the error message
     """
-    return dumps({'status': 'error', 'message': error_message})
+    return dumps({'status': status, 'message': message})
 
 if __name__ == '__main__':
     app.run()
