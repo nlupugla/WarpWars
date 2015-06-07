@@ -80,7 +80,7 @@ def game_update_move(game_id, unit_id, x, y):
     # TODO: actually send the data to the backend and verify it before returning a legit state update
     return format_error('default success!') # game_status(game_id)
 
-@app.route('state/game/<int:game_id>')
+@app.route('/state/game/<int:game_id>')
 def game_status(game_id):
     """
     Fetch the full game state of a given game.

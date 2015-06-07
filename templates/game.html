@@ -12,6 +12,7 @@
 		<div id="info-box">
 			<h2 id="game-id">Game ID: {{ game_id }}</h2>
 			<h2 id="turn-indicator">Turn: WHITE</h2>
+			<h3 id="turn-number-indicator">Turn 1</h3>
 			<div id="mana-box">
 				<h4>MANA:</h4>
 				<h5 id="white-mana-indicator">WHITE: 0</h6>
@@ -21,37 +22,13 @@
 		</div>
 		<script type="text/javascript" src="{{ drawing_file }}" ></script>
 		<script type="text/javascript">
-			// update client-side state with state from the server
-			function updateState(new_state){
-				// wipe the board, place all the new units
-				createBoard();
-				for(int i = 0; i < new_state['units'].length; i++){
-					unit = new_state['units'][i];
-					type = unit['type'];
-					color = unit['color'];
-					id = unit['ID'];
-					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece(type, color, id);
-				}
-				
-				// set the current turn and turn number
-				currentTurn = new_state['active_color'];
-				// currentTurnNumber = new_state['turn'];
-				
-				// TODO: get the mana totals for the players
-				
-				// TODO: get palette information for both players
-				
-				// update the board and interface
-				redraw();
-				updateInterface();
-			}
-			
 			// Canvas setup
 			var canvas = document.getElementById('board');
 			var ctx = canvas.getContext('2d');
 			
 			// DOM elements for interface
 			var turnIndicator = document.getElementById("turn-indicator");
+			var turnNumberIndicator = document.getElementById("turn-number-indicator");
 			var whiteManaIndicator = document.getElementById("white-mana-indicator");
 			var blackManaIndicator = document.getElementById("black-mana-indicator");
 			
@@ -66,7 +43,7 @@
 			var HEIGHT = WIDTH;
 			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2});
 			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
-			var EMPTY_ID = Object.freeze(0);
+			var EMPTY_ID = 0;
 			var TurnOwnership = Object.freeze({WHITE: 0, BLACK: 1});
 			
 			// Click state tracking
@@ -77,6 +54,7 @@
 			
 			// Game state tracking
 			var currentTurn = TurnOwnership.WHITE;
+			var currentTurnNumber = 1;
 			var board = new Array(WIDTH);
 			var whiteMana = 0;
 			var blackMana = 0;
@@ -127,6 +105,7 @@
 				} else {
 					turnIndicator.innerHTML = "Turn: BLACK";
 				}
+				turnNumberIndicator.innerHTML = "Turn " + currentTurnNumber;
 				whiteManaIndicator.innerHTML = "WHITE: " + whiteMana;
 				blackManaIndicator.innerHTML = "BLACK: " + blackMana;
 			}
@@ -139,6 +118,7 @@
 				} else {
 					currentTurn = TurnOwnership.WHITE;
 				}
+				currentTurnNumber++;
 				updateInterface();
 			}
 			
@@ -210,6 +190,31 @@
 			}
 			
 			canvas.addEventListener("click", handleClick, false);
+			
+			// update client-side state with state from the server
+			function updateState(new_state){
+				// wipe the board, place all the new units
+				createBoard();
+				for(var i = 0; i < new_state['units'].length; i++){
+					unit = new_state['units'][i];
+					type = unit['type'];
+					color = unit['color'];
+					id = unit['ID'];
+					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece(type, color, id);
+				}
+				
+				// set the current turn and turn number
+				currentTurn = new_state['active_color'];
+				// currentTurnNumber = new_state['turn'];
+				
+				// TODO: get the mana totals for the players
+				
+				// TODO: get palette information for both players
+				
+				// update the board and interface
+				redraw();
+				updateInterface();
+			}
 		</script>
 	</body>
 </html>
