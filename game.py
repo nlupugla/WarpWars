@@ -1,4 +1,7 @@
+from json import dumps
+
 from constants import *
+from card_dictionary import CARD_DICTIONARY
 
 class Game:
     """
@@ -45,6 +48,20 @@ class Game:
             inactive_player.draw()
         self.phase = (self.phase + 1)%3
 
+    def place(self, unit, x, y):
+        """
+        Place a unit at the specified coordinates
+
+        :param unit: the unit to place
+        :param x: x position
+        :param y: y position
+        :return: nothing
+        """
+        # TODO: Do something about taking?
+        unit.x = x
+        unit.y = y
+        self.board[x][y] = self.active_color
+
     def move(self, unit_ID, x, y):
         """
         Move a unit.
@@ -54,36 +71,56 @@ class Game:
         :param y: y position of move
         :return: If the move was legal, return True, otherwise False
         """
-        # check that the destination is on the board
-        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
-
         legality = False
+        # check that the destination is on the board
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
+        if x < 0 or y < 0: return legality
+
+        # grab unit by ID
         unit = self.units[unit_ID]
+
+        # loop through all possible paths available to the unit
         for path in unit.moves:
             x_tracker = unit.x
             y_tracker = unit.y
+            # if one of the moves in the path is the destination, and you can get there legally, move the piece
             for move in path:
-                # if something is at the destination, the move is illegal
                 x_tracker += move.x
                 y_tracker += move.y
                 tile_value = self.board[x_tracker][y_tracker]
+                # if something is at the destination, the move is illegal
                 if (tile_value == OBSTRUCTION and not move.fly) or \
                         (tile_value == self.active_color and not move.fly): break
+                if x_tracker == x and y_tracker == y:
+                    self.place(unit, x, y)
+                    legality = True
+                    return legality
 
 
         return True
 
-    def deploy(self, unit_name, destination):
+    def deploy(self, card_ID, x, y):
         """
         Deploys a unit onto the board.
 
-        :param unit_name: Name of the unit to deploy
-        :param x: x position of move
-        :param y: y position of move
+        :param card_ID: unique identifier of card to be deployed as unit
+        :param x: x position of deployment destination
+        :param y: y position of deployment destination
         :return:
         """
+        legality = False
+        #grab card by ID
+        player = self.players[self.active_color]
+        card = player.palette[card_ID]
+        # check legality
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
+        if x < 0 or y < 0: return legality
+        if self.board[x][y] != EMPTY_TILE: return legality
+        if card.cost > player.warp: return legality
+        # TODO: Implement a cap on the number of cards of the same type you can play?
+        unit = CARD_DICTIONARY[card]
+        self.place(unit, x, y)
         return True
-        pass
 
     def state(self):
         """
@@ -91,7 +128,8 @@ class Game:
 
         :return: Text in json format containing all of the game's data
         """
-        json = "Look at the llamas!"
+        game_dict = self.generate_dict()
+        json = dumps(game_dict)
         return json
 
     def generate_dict(self):

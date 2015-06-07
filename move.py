@@ -29,3 +29,4 @@ class Move:
             'y': self.y,
             'fly': self.fly
         }
+        return dictionary

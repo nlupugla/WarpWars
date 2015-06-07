@@ -15,7 +15,8 @@ class Unit:
 
         :return: an initialized unit object
         """
-        self.ID = 0
+        self.ID = Unit.n_deployed
+        Unit.n_deployed += 1
         self.name = ""
         self.type = 0
         self.color = WHITE
