@@ -205,7 +205,7 @@
 				
 				// set the current turn and turn number
 				currentTurn = new_state['active_color'];
-				// currentTurnNumber = new_state['turn'];
+				currentTurnNumber = new_state['turn'];
 				
 				// TODO: get the mana totals for the players
 				
@@ -238,7 +238,7 @@
 				request.send();
 			}
 			
-			// var refreshID = window.setInterval(makeGetRequest, 50, update_state, '{{ state }} ');
+			// var refreshID = window.setInterval(makeGetRequest, 50, '{{ state }}', update_state);
 		</script>
 	</body>
 </html>
