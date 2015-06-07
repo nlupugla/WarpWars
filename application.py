@@ -44,7 +44,7 @@ def create_game(game_id):
     """
     # don't clobber existing games
     # TODO: make this more robust somehow
-    if game_id not in games: return redirect(url_for('root'))
+    if game_id in games: return redirect(url_for('root'))
 
     # set this player as white
     session['color-' + str(game_id)] = WHITE
