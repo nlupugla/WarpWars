@@ -18,8 +18,9 @@ app = Flask(__name__)
 # secret key for session storage
 app.secret_key = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
 
-# master list of all currently running games
+# master list of all currently running games; list of their states
 games = {}
+game_states = {} # move this into Game eventually
 
 @app.route('/')
 def root():
@@ -51,6 +52,7 @@ def create_game(game_id):
 
     # actually create the game
     games[game_id] = Game()
+    game_states[game_id] = 0
 
     return redirect('/game/' + str(game_id))
 
@@ -90,9 +92,11 @@ def game(game_id):
     if game_id not in games: return redirect(url_for('root'))
 
     drawing_file = url_for('static', filename = 'drawing.js')
+    changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove the last_state so client can fill it in
     state = url_for('game_status', game_id = game_id)
     color = session['color-' + str(game_id)]
-    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state, player_color = color)
+    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state,
+                           changed = changed, player_color = color)
 
 @app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>', methods = ['POST'])
 def game_update_move(game_id, unit_id, x, y):
@@ -110,8 +114,21 @@ def game_update_move(game_id, unit_id, x, y):
     :return: the game state after the move, as JSON
     """
     if game_id not in games: return format_error('Game does not exist')
-    # TODO: actually send the data to the backend and verify it before returning a legit state update
+    # TODO: actually send the data to the backend and verify it before doing a legit state update
+    # TODO: game_states[game_id] += 1
     return format_error('default success!') # game_status(game_id)
+
+@app.route('/changed/game/<int:game_id>/<int:last_state>')
+def game_changed(game_id, last_state):
+    """
+    Indicate to the client whether or not it needs to refetch game state.
+
+    :param game_id: the game_id of the game to be checked for new state
+    :param last_state: the last state seen by the client
+    :return: whether or not there is new state to be fetched or an error, as JSON
+    """
+    if game_id not in games: return format_error('Game does not exist')
+    return dumps({'changed': True if game_states[game_id] > last_state else False}) # absolutely disgusting
 
 @app.route('/state/game/<int:game_id>')
 def game_status(game_id):

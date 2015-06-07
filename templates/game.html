@@ -53,6 +53,7 @@
 			var firstY = -1;
 			
 			// Game state tracking
+			var currentState = 0;
 			var playerColor = {{ player_color }}; // the player playing through this client
 			var currentTurn = TurnOwnership.WHITE;
 			var currentTurnNumber = 1;
@@ -192,6 +193,13 @@
 			
 			canvas.addEventListener("click", handleClick, false);
 			
+			// check for new state, updating if we've received any
+			function updateOnNewState(data){
+				if(data['changed']){
+					makeGetRequest('{{ state }}', updateState);
+				}
+			}
+			
 			// update client-side state with state from the server
 			function updateState(new_state){
 				// wipe the board, place all the new units
@@ -212,6 +220,9 @@
 				
 				// TODO: get palette information for both players
 				
+				// reset click state
+				clickState = ClickStates.NO_PREVIOUS_CLICK;
+				
 				// update the board and interface
 				redraw();
 				updateInterface();
@@ -223,7 +234,7 @@
 				request.open('GET', url, true);
 				
 				request.onload = function(){
-					if (request.status >= 200 && request.status < 400) {
+					if(request.status >= 200 && request.status < 400) {
 						// success
 						var data = JSON.parse(request.responseText);
 						callback(data);
@@ -239,7 +250,7 @@
 				request.send();
 			}
 			
-			// var refreshID = window.setInterval(makeGetRequest, 50, '{{ state }}', update_state);
+			// var refreshID = window.setInterval(makeGetRequest, 100, '{{ changed }}' + currentState, updateOnNewState);
 		</script>
 	</body>
 </html>
