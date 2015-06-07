@@ -4,7 +4,7 @@ YOLO SWAG 420
 
 from json import dumps
 
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, url_for
 
 from game import Game
 
@@ -59,7 +59,7 @@ def game(game_id):
     # if the given game doesn't exist, redirect to '/'
     if game_id == None: return redirect('/')
 
-    return render_template(GAME_TEMPLATE, game_id = game_id)
+    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = url_for('static', filename = 'drawing.js'))
 
 @app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>', methods = ['POST'])
 def game_update_move(game_id, unit_id, x, y):
