@@ -91,7 +91,7 @@ def game_status(game_id):
     :return: the current game state or an error, as JSON
     """
     if game_id not in games: return format_error('Game does not exist')
-    return None
+    return games[game_id].state()
 
 @app.errorhandler(404)
 def page_not_found(error):
