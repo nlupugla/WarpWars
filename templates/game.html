@@ -7,7 +7,139 @@
 			#info-box { position: absolute; top: 0px; left: 840px; }
 		</style>
 	</head>
-	<body>
+	<body onload=setup()>
 		<canvas id="board" width="810" height="810">This is a canvas! If you're reading this message, please upgrade to a better browser.</canvas>
+		<div id="info-box">
+			<div id="game-id">{{ game_id }}</div>
+		</div>
+		<script type=text/javascript>
+			// Canvas setup
+			var canvas = document.getElementById('board');
+			var ctx = canvas.getContext('2d');
+			
+			// Constants for drawing the board
+			var min = 5;
+			var max = canvas.getAttribute('width')-5;
+			var step = 80;
+			var lines = ((max-min)/step)+1;
+			
+			// Board constants
+			var width = lines-1;
+			var height = width;
+			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 3});
+			var PieceColors = Object.freeze({EMPTY: 0, WHITE: 1, BLACK: 2});
+			
+			// Constructor for a Piece
+			function Piece(type, color){
+				this.type = type;
+				this.color = color;
+			}
+			
+			// perform initial setup of the canvas
+			function setup(){
+				createBoard();
+				draw();
+			}
+			
+			// create and fill the board with empty spaces
+			function createBoard(){
+				for(var i = 0; i < width; i++){
+					board[i] = new Array(height);
+					for(var j = 0; j < height; j++){
+						board[i][j] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY);
+					}
+				}
+			}
+			
+			// converts a board coordinate to the canvas coordinate of the top-left corner of the board square
+			function convertToCanvasCoord(input){
+				input *= step;
+				input += min;
+				return input;
+			}
+			
+			// draw a line between two points
+			function drawLine(startX, startY, endX, endY){
+				ctx.beginPath();
+				ctx.moveTo(startX, startY);
+				ctx.lineTo(endX, endY);
+				ctx.stroke();
+			}
+			
+			// draw a circle; x and y must be coordinates of the top-left of the grid square
+			function drawCircle(x, y){
+				ctx.beginPath();
+				ctx.arc(x+step/2, y+step/2, step*3/8, 0, Math.PI*2);
+				ctx.fill();
+				ctx.stroke();
+			}
+			
+			// fill a board space with the given color
+			function drawSpace(boardX, boardY, color){
+				var x = convertToCanvasCoord(boardX);
+				var y = convertToCanvasCoord(boardY);
+				ctx.fillStyle = color;
+				ctx.fillRect(x+1, y+1, step-2, step-2);
+			}
+			
+			// draw a piece in a space
+			function drawPiece(boardX, boardY, piece){
+				// convert board coords to canvas coords
+				var x = convertToCanvasCoord(boardX);
+				var y = convertToCanvasCoord(boardY);
+				// set the appropriate color
+				switch(piece.color){
+					case PieceColors.EMPTY: //if the space is empty, there's no piece to draw
+						return;
+						break;
+					case PieceColors.WHITE:
+						ctx.strokeStyle = "#000000";
+						ctx.fillStyle = "#ffffff";
+						break;
+					case PieceColors.BLACK:
+						ctx.strokeStyle = "#000000";
+						ctx.fillStyle = "#000000";
+						break;
+				}
+				// draw the piece
+				switch(piece.type){
+					case PieceTypes.EMPTY:
+						break;
+					case PieceTypes.WARPLING:
+						drawCircle(x, y);
+						break;
+				}
+			}
+			
+			// draw the basic grid
+			function draw(){
+				ctx.fillStyle = "";
+				ctx.strokeStyle = "#000000";
+				ctx.lineWidth = 2.0;
+				
+				for(var i = 0; i < lines; i++){
+					drawLine(min, min+i*step, max, min+i*step);
+					drawLine(min+i*step, min, min+i*step, max);
+				}
+				
+				redraw();
+			}
+			
+			// draw the contents of the board
+			function redraw(){
+				ctx.lineWidth = 2.0;
+				ctx.fillStyle = "#ffffff";
+				ctx.strokeStyle = "#000000";
+				
+				for(var i = 0; i < width; i++){
+					for(var j = 0; j < height; j++){
+						drawSpace(i, j, "#ffffff");
+						if(board[i][j].type != PieceTypes.EMPTY){
+							drawPiece(i, j, board[i][j]);
+						}
+					}
+				}
+			}
+		</script>
 	</body>
 </html>

@@ -1,2 +1,5 @@
-#ignore the PyCharm metadata
+# ignore the PyCharm metadata
 *idea/
+
+# ignore .pyc files
+ *.pyc
