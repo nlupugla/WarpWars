@@ -22,3 +22,4 @@ if __name__ == '__main__':
     print game.units
     print game.units[1].x == 5
     print game.units[2].x == 6
+    print game.state()

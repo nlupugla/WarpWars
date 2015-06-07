@@ -155,7 +155,7 @@ class Game:
 
         units = []
         for unit in self.units:
-            units.append(unit.generate_dict())
+            units.append(self.units[unit].generate_dict())
         players = []
 #        for player in self.players:
 #            players.append(player.generate_dict())
