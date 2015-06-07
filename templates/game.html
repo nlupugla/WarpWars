@@ -27,9 +27,23 @@
 				createBoard();
 				for(int i = 0; i < new_state['units'].length; i++){
 					unit = new_state['units'][i];
-					type = if(unit['type'] == 
-					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece()
+					type = unit['type'];
+					color = unit['color'];
+					id = unit['ID'];
+					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece(type, color, id);
 				}
+				
+				// set the current turn and turn number
+				currentTurn = new_state['active_color'];
+				// currentTurnNumber = new_state['turn'];
+				
+				// TODO: get the mana totals for the players
+				
+				// TODO: get palette information for both players
+				
+				// update the board and interface
+				redraw();
+				updateInterface();
 			}
 			
 			// Canvas setup
@@ -51,9 +65,9 @@
 			var WIDTH = LINES-1;
 			var HEIGHT = WIDTH;
 			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2});
-			var PieceColors = Object.freeze({EMPTY: 0, WHITE: 1, BLACK: 2});
+			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
 			var EMPTY_ID = Object.freeze(0);
-			var TurnOwnership = Object.freeze({WHITE: 1, BLACK: 2});
+			var TurnOwnership = Object.freeze({WHITE: 0, BLACK: 1});
 			
 			// Click state tracking
 			var ClickStates = Object.freeze({NO_PREVIOUS_CLICK: 0, AWAITING_CLICK_FOR_MOVEMENT: 1, AWAITING_CLICK_FOR_DEPLOYMENT: 2});
