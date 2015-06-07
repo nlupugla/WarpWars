@@ -1,3 +1,5 @@
+import unittest
+
 from game import *
 from unit import *
 from player import *
@@ -14,16 +16,19 @@ def test_game():
     return_game.deploy(WARPLING_TYPE, 6, 6)
     return return_game
 
+class GameTest(unittest.TestCase):
+
+    def test_initialization(self):
+        game = test_game()
+        self.assertEqual(game.board[5][5], WHITE_TILE)
+        self.assertEqual(game.board[6][6], BLACK_TILE)
+        self.assertEqual(game.units[1].x, 5)
+        self.assertEqual(game.units[2].x, 6)
+
+
 if __name__ == '__main__':
-    game = test_game()
-
-    # test that things were set up properly
-    print game.board[5][5] == WHITE_TILE
-    print game.board[6][6] == BLACK_TILE
-    print game.units
-    print game.units[1].x == 5
-    print game.units[2].x == 6
-
+    unittest.main()
+"""
     # test that moving works as it should
     print not game.move(1, 6, 6) # should print true as this is out of range
     print game.board[6][6] == BLACK_TILE # should still be true
@@ -31,8 +36,5 @@ if __name__ == '__main__':
     print game.board[5][6] == WHITE_TILE
     game.move(1, 6, 6)
     print game.board[6][6] == WHITE_TILE
-    del game.units[2]
     print game.units
-
-
-    print game.state()
+"""

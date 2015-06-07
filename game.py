@@ -53,30 +53,6 @@ class Game:
 #            inactive_player.draw()
         self.phase = (self.phase + 1)%3
 
-    def place(self, unit, x, y):
-        """
-        Place a unit at the specified coordinates
-
-        :param unit: the unit to place
-        :param x: x position
-        :param y: y position
-        :return: nothing
-        """
-        unit.x = x
-        unit.y = y
-        if self.board[x][y] == (not unit.color):
-            self.take(x, y)
-        self.board[x][y] = unit.color
-        self.units[unit.ID] = unit
-
-    def take(self, x, y):
-        for key in self.units:
-            if self.units[key].x == x and self.units[key].y == y:
-                del self.units[key]
-                print "deleted at key" + str(key)
-                return True
-        return False
-
     def move(self, unit_ID, x, y):
         """
         Move a unit.
@@ -103,13 +79,37 @@ class Game:
                 x_tracker += move.x
                 y_tracker += move.y
                 tile_value = self.board[x_tracker][y_tracker]
-                # if something is at the destination, the move is illegal
+                # check that the move doesn't collide with an obstacle is illegal
                 if (tile_value == OBSTRUCTION and not move.fly) or \
-                        (tile_value == unit.color and not move.fly): break
+                        (tile_value == unit.color and not move.fly):
+                    break
+                # when you get to the destination, place the unit there
                 if x_tracker == x and y_tracker == y:
                     self.place(unit, x, y)
                     legality = True
                     return legality
+
+    def place(self, unit, x, y):
+        """
+        Place a unit at the specified coordinates
+
+        :param unit: the unit to place
+        :param x: x position
+        :param y: y position
+        :return: nothing
+        """
+        unit.x = x
+        unit.y = y
+        if self.board[x][y] == (not unit.color):
+            self.take(x, y)
+        self.board[x][y] = unit.color
+
+    def take(self, x, y):
+        for key in self.units:
+            if self.units[key].x == x and self.units[key].y == y:
+                del self.units[key]
+                return True
+        return False
 
     def deploy(self, card_ID, x, y):
         """
