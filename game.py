@@ -48,8 +48,36 @@ class Game:
             inactive_player.draw()
         self.phase = (self.phase + 1)%3
 
-    def move(self, unit_ID, destination):
-        pass
+    def move(self, unit_ID, x, y):
+        """
+        Move a unit.
+
+        :param unit_ID: Unique numeric identifier of the unit to move
+        :param x: x position of move
+        :param y: y position of move
+        :return: If the move was legal, return True, otherwise False
+        """
+        unit = self.units[unit_ID]
+
+        return True
 
     def deploy(self, unit_name, destination):
+        """
+        Deploys a unit onto the board.
+
+        :param unit_name: Name of the unit to deploy
+        :param x: x position of move
+        :param y: y position of move
+        :return:
+        """
+        return True
         pass
+
+    def state(self):
+        """
+        Return the entire game state.
+
+        :return: Text in json format containing all of the game's data
+        """
+        json = "Look at the llamas!"
+        return json
