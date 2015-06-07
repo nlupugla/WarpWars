@@ -10,6 +10,7 @@ from game import Game
 
 ROOT_TEMPLATE = 'root.html'
 GAME_TEMPLATE = 'game.html'
+ERROR_404_TEMPLATE = '404.html'
 
 app = Flask(__name__)
 
@@ -41,7 +42,7 @@ def create_game(game_id):
     # TODO: make this more robust somehow
     if game_id in games: return redirect('/')
 
-    games[game_id] = Game() # is this what the constructor takes?
+    games[game_id] = Game()
 
     return redirect('/game/' + str(game_id))
 
@@ -55,12 +56,12 @@ def game(game_id):
     :param game_id: the id of the game to display
     :return: the html page displaying the game or a redirect to '/'
     """
-    # if there is no 'game_id' parameter, redirect
+    # if the given game doesn't exist, redirect to '/'
     if game_id == None: return redirect('/')
 
     return render_template(GAME_TEMPLATE, game_id = game_id)
 
-@app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>')
+@app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>', methods = ['POST'])
 def game_update_move(game_id, unit_id, x, y):
     """
     Move a given unit in the given game to the given position.
@@ -73,7 +74,18 @@ def game_update_move(game_id, unit_id, x, y):
     :param y: the y-coordinate the piece is moving to
     :return: the game state after the move, as JSON
     """
+    # TODO: actually send the data to the backend and verify it before returning a legit state update
     return format_error('default success!')
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """
+    Return a friendly 404 page.
+
+    :param error: the error message
+    :return: a friendly 404 page
+    """
+    return render_template(ERROR_404_TEMPLATE)
 
 def format_error(error_message):
     """
