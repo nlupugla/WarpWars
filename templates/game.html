@@ -210,7 +210,7 @@
 					type = unit['type'];
 					color = unit['color'];
 					id = unit['ID'];
-					board[new_state['units'][i]['x']][new_state['units'][i]['y']] = new Piece(type, color, id);
+					board[unit['x']][unit['y']] = new Piece(type, color, id);
 				}
 				
 				// set the current turn and turn number
