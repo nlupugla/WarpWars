@@ -116,7 +116,3 @@ class Game:
             'over': self.over,
         }
         return dictionary
-
-import json
-
-print json.dumps(Game().generate_dict())
