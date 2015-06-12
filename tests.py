@@ -4,6 +4,7 @@ from game import *
 from unit import *
 from player import *
 from card_dictionary import *
+from graph import *
 
 def test_game():
     return_game = Game()
@@ -25,6 +26,22 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.units[1].x, 5)
         self.assertEqual(game.units[2].x, 6)
 
+    def test_graph(self):
+        my_graph = Graph()
+        my_graph.add_new_node(0, 0)
+        my_graph.add_new_node(-1, 1)
+        my_graph.add_new_node(0, 1)
+        my_graph.add_new_node(1,1)
+        my_graph.add_new_node(-1, 2)
+        my_graph.add_new_node(0, 2)
+        my_graph.add_new_node(1,2)
+        my_graph.connect_adjacent_nodes()
+
+        print my_graph.generate_dict()
+
+        self.assertFalse(my_graph.find_node_by_position(0, 0) is None)
+        self.assertTrue(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(0, 1)))
+        self.assertFalse(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 1)))
 
 if __name__ == '__main__':
     unittest.main()

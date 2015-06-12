@@ -159,7 +159,6 @@ class Game:
 
         :return: a dictionary formatted to be an argument for json.dumps
         """
-
         units = []
         for key in self.units:
             unit = self.units[key]
