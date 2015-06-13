@@ -66,10 +66,11 @@
 			var blackMana = 0;
 			
 			// Constructor for a Piece
-			function Piece(type, color, id){
+			function Piece(type, color, id, moves){
 				this.type = type;
 				this.color = color;
 				this.id = id;
+				this.moves = moves;
 			}
 			
 			// perform initial setup of the canvas
@@ -131,7 +132,10 @@
 			}
 			
 			// returns a list of points moveable to by the piece on the given board square
-			function getMoveableSpaces(boardX, boardY, piece){
+			function getMoveableSpaces(piece){
+				return piece.legal_moves
+				
+/*
 				list = new Array();
 				returnList = new Array();
 				switch(piece.type){
@@ -152,6 +156,7 @@
 					}
 				}
 				return returnList;
+*/
 			}
 			
 			// handle clicks
@@ -173,7 +178,7 @@
 						drawPiece(x, y, board[x][y]);
 						
 						// paint all spaces the piece can move to
-						moveableSpaces = getMoveableSpaces(x, y, board[x][y]);
+						moveableSpaces = getMoveableSpaces(board[x][y]);
 						for(var i = 0; i < moveableSpaces.length; i++){
 							drawSpace(moveableSpaces[i][0], moveableSpaces[i][1], "#00ff00");
 							drawPiece(moveableSpaces[i][0], moveableSpaces[i][1], board[moveableSpaces[i][0]][moveableSpaces[i][1]]);
@@ -181,7 +186,7 @@
 					}
 				} else if(clickState == ClickStates.AWAITING_CLICK_FOR_MOVEMENT){
 					// check if target space is moveable to by current piece
-					if(getMoveableSpaces(firstX, firstY, board[firstX][firstY]).some(function(e){return ((e[0] == x) && (e[1] == y))})){
+					if(getMoveableSpaces(board[firstX][firstY]).some(function(e){return ((e[0] == x) && (e[1] == y))})){
 						// actually move the piece
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
@@ -221,7 +226,8 @@
 					type = unit['type'];
 					color = unit['color'];
 					id = unit['ID'];
-					board[unit['x']][unit['y']] = new Piece(type, color, id);
+					moves = unit['legal_moves'] // assuming legal_moves is a list of ordered pairs eg [[2, 3], [3, 4], ...]
+					board[unit['x']][unit['y']] = new Piece(type, color, id, moves);
 				}
 				
 				// set the current turn and turn number
