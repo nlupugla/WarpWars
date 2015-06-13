@@ -1,7 +1,6 @@
-BLOCKED = 999999999
-
 from node import Node
 from edge import Edge
+from constants import BLOCKED
 
 class Graph:
     """
@@ -12,14 +11,13 @@ class Graph:
     ask nicely and maybe, maybe we'll get around to it.
     """
 
-    def __init__(self, mapping={}):
+    def __init__(self):
         """
-        Create a new graph
+        Create a new graph.
 
-        :param mapping: a mapping of nodes to their corresponding set of edges
         :return: an initialized Graph object
         """
-        self.mapping = mapping # Key: node -> Item: edges
+        self.mapping = {} # Key: node -> Item: edges
 
     def add_node(self, node):
         """
@@ -200,6 +198,16 @@ class Graph:
         """
         for edge in self.mapping[node]:
             self.edit_edge(edge, BLOCKED)
+
+    def block_position(self, x, y):
+        """
+        Block a node at the specified position from the rest of the graph.
+
+        :param x: x coordinate of the node to block.
+        :param y: y coordinate of the node to block.
+        :return: nothing.
+        """
+        self.block_node(self.find_node_by_position(x, y))
 
     def get_edges(self):
         """

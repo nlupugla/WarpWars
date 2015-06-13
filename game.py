@@ -3,6 +3,7 @@ from json import dumps
 from constants import *
 from card_dictionary import CARD_DICTIONARY
 from unit import Unit
+from graph import Graph
 
 class Game:
     """
@@ -53,6 +54,36 @@ class Game:
 #            inactive_player.draw()
         self.phase = (self.phase + 1)%3
 
+    def move_is_legal(self, unit_ID, x, y):
+        """
+        Return whether moving a unit the specified coordinates is legal or not given the current board position.
+
+        :param unit_ID: unique identifier of the unit to move
+        :param x: x coordinate of destination.
+        :param y: y coordinate of destination.
+        :return: True if the move is legal, False otherwise.
+        """
+        # The destination must not be off the board.
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
+        if x < 0 or y < 0: return False
+       # Grab the unit by ID.
+        unit = self.units[unit_ID]
+        movement = unit.graph
+        # The destination must not be a unit of the same color or an obstruction.
+        if self.board[x][y] == unit.color or self.board[x][y] == OBSTRUCTION:
+            return False
+        # The destination must be different from the starting location.
+        if (x, y) == (unit.x, unit.y):
+            return False
+        # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
+        start_node = movement.find_node_by_position(unit.x, unit.y)
+        end_node = movement.find_node_by_position(x, y)
+        for node in end_node.neighborhood():
+            if movement.traversal_cost(start_node, end_node) < BLOCKED:
+                return True
+        # If they are all blocked, the move is illegal.
+        return False
+
     def move(self, unit_ID, x, y):
         """
         Move a unit.
@@ -60,7 +91,7 @@ class Game:
         :param unit_ID: Unique numeric identifier of the unit to move
         :param x: x position of move
         :param y: y position of move
-        :return: If the move was legal, return True, otherwise False
+        :return: If the move was legal, return True, otherwise False.
         """
         legality = False
         # check that the destination is on the board
@@ -89,6 +120,22 @@ class Game:
                     legality = True
                     return legality
 
+    def new_move(self, unit_ID, x, y):
+        """
+        Attempt to move a unit to the specified location.
+
+        :param unit_ID: Unique numeric identifier of the unit to move.
+        :param x: x coordinate of move.
+        :param y: y coordinate of move.
+        :return: If the move was legal, return True, otherwise False.
+        """
+        legal = self.move_is_legal(unit_ID, x, y)
+        if not legal:
+            return False
+        unit = self.units[unit_ID]
+        self.new_place(unit, x, y)
+        return True
+
     def place(self, unit, x, y):
         """
         Place a unit at the specified coordinates
@@ -103,6 +150,35 @@ class Game:
         if self.board[x][y] == (not unit.color):
             self.take(x, y)
         self.board[x][y] = unit.color
+
+    def new_place(self, unit, x, y):
+        movement = unit.graph
+        # update graph position
+        for node in movement:
+            node.x += x - unit.x
+            node.y += y - unit.y
+        # update unit position
+        unit.x = x
+        unit.y = y
+        if self.board[x][y] == (not unit.color):
+            self.take(x, y)
+        self.board[x][y] = unit.color
+        self.update_movements()
+
+    def update_movements(self):
+        """
+        Update the movement graph of every unit to reflect the current board.
+
+        :return: nothing.
+        """
+        for key in self.units:
+            unit = self.units[key]
+            movement = unit.graph
+            for x in range(BOARD_LENGTH):
+                for y in range(BOARD_HEIGHT):
+                    if self.board[x][y] != EMPTY_TILE and (x, y) != (unit.x, unit.y):
+                        if movement.find_node_by_position(x, y) is not None:
+                            movement.block_position(x, y)
 
     def take(self, x, y):
         for key in self.units:

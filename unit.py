@@ -1,4 +1,5 @@
 from constants import *
+from graph import Graph
 
 class Unit:
     """
@@ -21,6 +22,7 @@ class Unit:
         self.x = 0  # x position
         self.y = 0  # y position
         self.moves = [[]]  # a list of paths which contain a list of moves
+        self.graph = Graph()
         self.abilities = {}
 
     def clone_unit(self, unit):

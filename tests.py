@@ -1,10 +1,11 @@
 import unittest
 
-from game import *
-from unit import *
-from player import *
-from card_dictionary import *
-from graph import *
+from game import Game
+from unit import Unit
+from player import Player
+from card_dictionary import CARD_DICTIONARY
+from graph import Graph
+from constants import *
 
 def test_game():
     return_game = Game()
