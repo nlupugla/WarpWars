@@ -37,11 +37,24 @@ class GameTest(unittest.TestCase):
         my_graph.add_new_node(1,2)
         my_graph.connect_adjacent_nodes()
 
-        print my_graph.generate_dict()
+        self.assertTrue(my_graph.find_node_by_position(0, 0) is not None)
+        self.assertTrue(my_graph.find_node_by_position(1, 1) is not None)
+        self.assertEquals(my_graph.num_nodes(), 7)
+        self.assertEquals(my_graph.num_edges(), 8)
 
-        self.assertFalse(my_graph.find_node_by_position(0, 0) is None)
         self.assertTrue(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(0, 1)))
         self.assertFalse(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 1)))
+
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(1, 1), my_graph.find_node_by_position(-1, 1)), 2)
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 2)), 3)
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 1), my_graph.find_node_by_position(0, 1)), 0)
+        my_graph.block_node(my_graph.find_node_by_position(-1, 1))
+        my_graph.block_node(my_graph.find_node_by_position(0, 2))
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(-1, 2)), BLOCKED)
+
+        my_graph.connect_all_to(my_graph.find_node_by_position(0,0))
+        self.assertEquals(my_graph.num_nodes(), 7)
+        self.assertEquals(my_graph.num_edges(), 13)
 
 if __name__ == '__main__':
     unittest.main()

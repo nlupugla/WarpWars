@@ -68,6 +68,22 @@ class Graph:
             if node.x == x and node.y == y:
                 return node
 
+    def get_nodes(self):
+        """
+        Return all nodes in the graph.
+
+        :return: a frozenset of all nodes in the graph.
+        """
+        return frozenset(self.mapping.keys())
+
+    def num_nodes(self):
+        """
+        Return the number of nodes in the graph.
+
+        :return: the number of nodes in the graph.
+        """
+        return len(self.get_nodes())
+
     def connect(self, node1, node2, weight=1, directed=False):
         """
         Add an edge to the graph that connects node1 to node2 if they are not already connected.
@@ -89,8 +105,8 @@ class Graph:
         """
         Add an edge to the graph that connects position1 with position2 if they are not already connected.
 
-        Note that if more than one node lives at either position, the specific node chosen from that group for the
-        for the connection is undefined.
+        This method will not connect two nodes that are already connected to each other. Note that if more than one node
+        lives at either position, the specific node chosen from that group for the for the connection is undefined.
         :param position1: a 2-tuple of the form (x, y) that specifies the position of the first node.
         :param position2: a 2-tuple of the form (x, y) that specifies the position of the second node.
         :param weight: numerical weight of the new edge.
@@ -105,9 +121,9 @@ class Graph:
         """
         Connect all nodes geometrically adjacent to each other in the graph.
 
-        Nodes are considered adjacent when the vector between them is (+/-1, 0) or (0, +/-1). For example, nodes at
-        positions (2,3) and (3, 3) are adjacent to each other but nodes at (2,3) and (3,4) are not. A node is not
-        adjacent to itself.
+        This method will not connect two nodes that are already connected to each other. Nodes are considered adjacent
+        when the vector between them is (+/-1, 0) or (0, +/-1). For example, nodes at positions (2,3) and (3, 3) are
+        adjacent to each other but nodes at (2,3) and (3,4) are not. A node is not adjacent to itself.
         :return: nothing.
         """
         for node in self.mapping:
@@ -124,6 +140,17 @@ class Graph:
             if west_node is not None:
                 self.connect(node, west_node)
 
+    def connect_all_to(self, center_node):
+        """
+        Connect all nodes in the graph except the argument to the input node.
+
+        :param center_node: the central node to witch all other nodes will connect.
+        :return: nothing.
+        """
+        for other_node in self.mapping:
+            if center_node != other_node:
+                self.connect(center_node, other_node)
+
     def find_edge(self, node1, node2):
         """
         Return the edge connecting node1 to node2.
@@ -136,7 +163,19 @@ class Graph:
             if node2 in edge.nodes:
                 return edge
 
-    def edit_edge(self, node1, node2, weight, directed=False):
+    def edit_edge(self, edge, weight, directed=False):
+        """
+        Assign a new weight and directedness to an edge.
+
+        :param edge: the edge to edit.
+        :param weight: new numerical weight of the edge.
+        :param directed: new boolean directedness of the edge.
+        :return: nothing.
+        """
+        edge.weight = weight
+        edge.directed = directed
+
+    def edit_connection(self, node1, node2, weight, directed=False):
         """
         Assign a new weight and directedness to the edge connecting node1 to node2.
 
@@ -149,9 +188,38 @@ class Graph:
         if not self.are_neighbours(node1, node2):
             return False
         edge = self.find_edge(node1, node2)
-        edge.weight = weight
-        edge.directed = directed
+        self.edit_edge(weight, directed)
         return True
+
+    def block_node(self, node):
+        """
+        Block a node off from the rest of the graph by editing the weight of all connecting edges to be BLOCKED.
+
+        :param node: the node to block.
+        :return: nothing.
+        """
+        for edge in self.mapping[node]:
+            self.edit_edge(edge, BLOCKED)
+
+    def get_edges(self):
+        """
+        Return all edges in the graph.
+
+        :return: the a frozenset of all edges in the graph.
+        """
+        edge_set = set()
+        for node in self.mapping:
+            edges = self.mapping[node]
+            edge_set |= edges
+        return frozenset(edge_set)
+
+    def num_edges(self):
+        """
+        Return the number of edges in the graph.
+
+        :return: the number of edges in the graph.
+        """
+        return len(self.get_edges())
 
     def neighbourhood(self, node):
         """
@@ -207,20 +275,21 @@ class Graph:
             if new_visit_cost < visit_costs[neighbour]:
                 visit_costs[neighbour] = new_visit_cost
         # Mark the current node as visited.
-        visited_nodes.add(unvisited_nodes.pop(start_node))
-        # Find the least costly unvisited node.
+        unvisited_nodes.remove(start_node)
+        visited_nodes.add(start_node)
+        # If end_node has been visited, terminate, the destination has been reached.
+        if start_node == end_node:
+            return visit_costs[start_node]
+        # Otherwise, find the least costly unvisited node.
         unvisited_visit_costs = {}
         for node in unvisited_nodes:
             unvisited_visit_costs[node] = visit_costs[node]
-        best_unvisited_node = min(unvisited_visit_costs, unvisited_visit_costs.get)
+        best_unvisited_node = min(unvisited_visit_costs, key=unvisited_visit_costs.get)
         # If that node is BLOCKED, terminate; the destination is inaccessible.
         if unvisited_visit_costs[best_unvisited_node] >= BLOCKED:
             return BLOCKED
-        # If start_node has been visited, terminate, the destination has been reached.
-        if start_node == end_node:
-            return visit_costs[start_node]
         # Otherwise, recurse using the least costly unvisited node as the new start_node.
-        return self.traversal_cost(self, best_unvisited_node, end_node, unvisited_nodes, visited_nodes, visit_costs)
+        return self.traversal_cost(best_unvisited_node, end_node, unvisited_nodes, visited_nodes, visit_costs)
 
     def generate_dict(self):
         # TODO: This is not ready yet
