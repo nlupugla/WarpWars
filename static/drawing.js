@@ -30,12 +30,17 @@ function drawLine(startX, startY, endX, endY){
 }
 
 // draw a circle; x and y must be canvas coordinates of the top-left of the grid square
-function drawCircle(x, y, size){
+// offest and size have default values which preserve the above behavior
+// to have the circle drawn around the passed point, set offset = 0
+function drawCircle(x, y, size, offset){
 	if(size === undefined){
-		size = 3/8
+		size = 3/8;
+	}
+	if(offset === undefined){
+		offset = STEP / 2;
 	}
 	ctx.beginPath();
-	ctx.arc(x+STEP/2, y+STEP/2, STEP*size, 0, Math.PI*2);
+	ctx.arc(x+offset, y+offset, STEP*size, 0, Math.PI*2);
 	ctx.fill();
 	ctx.stroke();
 }
@@ -90,6 +95,32 @@ function drawPiece(boardX, boardY, piece){
 			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 5, x + STEP / 2, y + 3 * STEP / 5);
 			drawLine(x + STEP / 2, y + 3 * STEP / 5, x + 3 * STEP / 5, y + 3 * STEP / 4);
 			drawLine(x + 3 * STEP / 5, y + 3 * STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			break;
+		case PieceTypes.ROOK:
+			drawLine(x + STEP / 4, y + STEP / 4, x + 2 * STEP / 5, y + STEP / 4);
+			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + 2 * STEP / 5, y + 2 * STEP / 5);
+			drawLine(x + 2 * STEP / 5, y + 2 * STEP / 5, x + 3 * STEP / 5, y + 2 * STEP / 5);
+			drawLine(x + 3 * STEP / 5, y + 2 * STEP / 5, x + 3 * STEP / 5, y + STEP / 4);
+			drawLine(x + 3 * STEP / 5, y + STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
+			drawLine(x + 3 * STEP / 4, y + STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + STEP / 4, y + STEP / 4);
+			break;
+		case PieceTypes.BISHOP:
+			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + STEP / 2, y + STEP / 4);
+			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + STEP / 2, y + STEP / 4);
+			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
+			drawCircle(x + STEP / 2, y + STEP / 4, 3/32, 0);
+			break;
+		case PieceTypes.QUEEN:
+			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 2, y + STEP /2);
+			drawLine(x + STEP / 2, y + STEP / 2, x + 3 * STEP / 4, y + STEP / 4);
+			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
+			drawCircle(x, y, 3/16);
+			drawCircle(x + STEP / 4, y + STEP / 4, 3/32, 0);
+			drawCircle(x + 3 * STEP / 4, y + STEP / 4, 3/32, 0);
 			break;
 	}
 }
