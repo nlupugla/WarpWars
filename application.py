@@ -14,6 +14,12 @@ ROOT_TEMPLATE = 'root.html'
 GAME_TEMPLATE = 'game.html'
 ERROR_404_TEMPLATE = '404.html'
 
+STATUS_SUCCESS = 'success'
+STATUS_ERROR = 'error'
+
+ERROR_GAME_DNE = 'game does not exist'
+SUCCESS_DEFAULT = 'success'
+
 app = Flask(__name__)
 
 # secret key for session storage
@@ -113,12 +119,12 @@ def game_update_move(game_id, unit_id, x, y):
     :param y: the y-coordinate the piece is moving to
     :return: whether or not the update succeeded, as JSON
     """
-    if game_id not in games: return format_response('error', 'Game does not exist')
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
     # TODO: actually send the data to the backend and verify it before doing a legit state update
     # call Game.move
     games[game_id].move(unit_id, x, y)
     # TODO: game_states[game_id] += 1
-    return format_response('success', 'default success!') # maybe return game_status(game_id), or just wait for autoupdate?
+    return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT) # maybe return game_status(game_id), or just wait for autoupdate?
 
 @app.route('/update/game/<int:game_id>/end/turn')
 def game_update_end_turn(game_id):
@@ -128,9 +134,9 @@ def game_update_end_turn(game_id):
     :param game_id: the id of the game to update
     :return: whether or not the update succeeded, as JSON
     """
-    if game_id not in games: return format_response('error', 'Game does not exist')
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
     games[game_id].next_turn()
-    return format_response('success', 'default success!')
+    return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/changed/game/<int:game_id>/<int:last_state>')
 def game_changed(game_id, last_state):
@@ -141,7 +147,7 @@ def game_changed(game_id, last_state):
     :param last_state: the last state seen by the client
     :return: whether or not there is new state to be fetched or an error, as JSON
     """
-    if game_id not in games: return format_response('error', 'Game does not exist')
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
     return dumps({'changed': True if games[game_id].state_ID > last_state else False}) # absolutely disgusting
 
 @app.route('/state/game/<int:game_id>')
@@ -154,7 +160,7 @@ def game_status(game_id):
     :param game_id: the id of the game whose status is to be fetched
     :return: the current game state or an error, as JSON
     """
-    if game_id not in games: return format_response('error', 'Game does not exist')
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
     return games[game_id].state()
 
 @app.errorhandler(404)
