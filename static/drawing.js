@@ -29,19 +29,36 @@ function drawLine(startX, startY, endX, endY){
 	ctx.stroke();
 }
 
+// draw and fill an arbitrary polygon
+function drawPolygon(coordinates){
+	ctx.beginPath();
+	ctx.moveTo(coordinates[0][0], coordinates[0][1]);
+	for(var i = 1; i < coordinates.length; i++){
+		ctx.lineTo(coordinates[i][0], coordinates[i][1]);
+	}
+	ctx.lineTo(coordinates[0][0], coordinates[0][1]);
+	ctx.stroke();
+	ctx.fill();
+}
+
 // draw a circle; x and y must be canvas coordinates of the top-left of the grid square
 // offest and size have default values which preserve the above behavior
 // to have the circle drawn around the passed point, set offset = 0
-function drawCircle(x, y, size, offset){
+function drawCircle(x, y, size, offset, fill){
 	if(size === undefined){
 		size = 3/8;
 	}
 	if(offset === undefined){
 		offset = STEP / 2;
 	}
+	if(fill === undefined){
+		fill = true;
+	}
 	ctx.beginPath();
 	ctx.arc(x+offset, y+offset, STEP*size, 0, Math.PI*2);
-	ctx.fill();
+	if(fill){
+		ctx.fill();
+	}
 	ctx.stroke();
 }
 
@@ -80,47 +97,27 @@ function drawPiece(boardX, boardY, piece){
 			drawCircle(x, y);
 			break;
 		case PieceTypes.KING:
-			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 2, y + STEP /2);
-			drawLine(x + STEP / 2, y + STEP / 2, x + 3 * STEP / 4, y + STEP / 4);
-			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
-			drawCircle(x, y, 3/16);
+			drawPolygon([[x + STEP / 8, y + STEP / 8],[x + STEP / 2, y + STEP /2], [x + 7 * STEP / 8, y + STEP / 8], [x + 7 * STEP / 8, y + 7 * STEP / 8], [x + STEP / 8, y + 7 * STEP / 8]]);
+			drawCircle(x, y, 3/16, STEP / 2, false);
 			break;
 		case PieceTypes.KNIGHT:
-			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + STEP / 2, y + STEP / 4);
-			drawLine(x + STEP / 2, y + STEP / 4, x + 3 * STEP / 4, y + 2 * STEP / 5);
-			drawLine(x + 3 * STEP / 4, y + 2 * STEP / 5, x + 3 * STEP / 4, y + 3 * STEP / 5);
-			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 5, x + STEP / 2, y + 3 * STEP / 5);
-			drawLine(x + STEP / 2, y + 3 * STEP / 5, x + 3 * STEP / 5, y + 3 * STEP / 4);
-			drawLine(x + 3 * STEP / 5, y + 3 * STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			drawPolygon([[x + STEP / 8, y + 7 * STEP / 8], [x + STEP / 4, y + STEP / 8], [x + 3 * STEP / 8, y + STEP / 8], [x + 7 * STEP / 8, y + STEP / 4], [x + 7 * STEP / 8, y + 3 * STEP / 8], [x + STEP / 2, y + 3 * STEP / 8], [x + 3 * STEP / 4, y + 7 * STEP / 8]]);
 			break;
 		case PieceTypes.ROOK:
-			drawLine(x + STEP / 4, y + STEP / 4, x + 2 * STEP / 5, y + STEP / 4);
-			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + 2 * STEP / 5, y + 2 * STEP / 5);
-			drawLine(x + 2 * STEP / 5, y + 2 * STEP / 5, x + 3 * STEP / 5, y + 2 * STEP / 5);
-			drawLine(x + 3 * STEP / 5, y + 2 * STEP / 5, x + 3 * STEP / 5, y + STEP / 4);
-			drawLine(x + 3 * STEP / 5, y + STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
-			drawLine(x + 3 * STEP / 4, y + STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + STEP / 4, y + STEP / 4);
+			drawPolygon([[x + STEP / 8, y + STEP / 8], [x + 2 * STEP / 5, y + STEP / 8], [x + 2 * STEP / 5, y + 2 * STEP / 5], [x + 3 * STEP / 5, y + 2 * STEP / 5], [x + 3 * STEP / 5, y + STEP / 8], [x + 7 * STEP / 8, y + STEP / 8], [x + 7 * STEP / 8, y + 7 * STEP / 8], [x + STEP / 8, y + 7 * STEP / 8]]);
 			break;
 		case PieceTypes.BISHOP:
-			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + STEP / 2, y + STEP / 4);
-			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + STEP / 2, y + STEP / 4);
-			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
-			drawCircle(x + STEP / 2, y + STEP / 4, 3/32, 0);
+			drawPolygon([[x + STEP / 8, y + 7 * STEP / 8], [x + STEP / 2, y + STEP / 4], [x + 7 * STEP / 8, y + 7 * STEP / 8]]);
+			/*drawLine(x + STEP / 8, y + 7 * STEP / 8, x + STEP / 2, y + STEP / 8);
+			drawLine(x + 7 * STEP / 8, y + 7 * STEP / 8, x + STEP / 2, y + STEP / 8);
+			drawLine(x + STEP / 8, y + 7 * STEP / 8, x + 7 * STEP / 8, y + 7 * STEP / 8);*/
+			drawCircle(x + STEP / 2, y + 3 * STEP / 16, 1/16, 0, false);
 			break;
 		case PieceTypes.QUEEN:
-			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 2, y + STEP /2);
-			drawLine(x + STEP / 2, y + STEP / 2, x + 3 * STEP / 4, y + STEP / 4);
-			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
-			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
-			drawCircle(x, y, 3/16);
-			drawCircle(x + STEP / 4, y + STEP / 4, 3/32, 0);
-			drawCircle(x + 3 * STEP / 4, y + STEP / 4, 3/32, 0);
+			drawPolygon([[x + STEP / 8, y + STEP / 4],[x + STEP / 2, y + STEP /2], [x + 7 * STEP / 8, y + STEP / 4], [x + 7 * STEP / 8, y + 7 * STEP / 8], [x + STEP / 8, y + 7 * STEP / 8]]);
+			drawCircle(x, y, 3/16, STEP / 2, false);
+			drawCircle(x + STEP / 4, y + 3 * STEP / 16, 1/16, 0);
+			drawCircle(x + 3 * STEP / 4, y + 3 * STEP / 16, 1/16, 0);
 			break;
 	}
 }
