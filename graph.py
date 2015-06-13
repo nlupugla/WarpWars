@@ -161,13 +161,10 @@ class Graph:
         :param node: a Node object
         :return: the set of all nodes neighboring the given node.
         """
-        edges = self.mapping[node]
-        neighbours = set([node])
-        # collect list of neighbours
-        for edge in edges:
-            nodes = edge.nodes
-            other_node = nodes[0] if node == nodes[0] else nodes[1]
-            neighbours.add(other_node)
+        connected_edges = self.mapping[node]
+        neighbours = set([node]) # a node always neighbours itself
+        for edge in connected_edges:
+            neighbours |= edge.nodes
         return neighbours
 
     def are_neighbours(self, node1, node2):
@@ -230,11 +227,15 @@ class Graph:
         nodes = []
         for node in self.mapping:
             nodes.append(node.generate_dict())
-        edges = set()
+        # get only one instance of each edge
+        edge_set = set()
         for node in self.mapping:
             for edge in self.mapping[node]:
-                edges.add(edge)
-        edges = list(edges)
+                edge_set.add(edge)
+        edges = []
+        # now turn each of those into a dictionary
+        for edge in edge_set:
+            edges.append(edge.generate_dict())
         dictionary = {
             'nodes': nodes,
             'edges': edges

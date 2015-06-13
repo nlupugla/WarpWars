@@ -17,7 +17,7 @@ class Node:
         Node.n_nodes += 1
         self.ID = Node.n_nodes
         self.x = x  # x position
-        self.y = x  # y position
+        self.y = y  # y position
 
     def __eq__(self, other):
         return (self.ID, self.x, self.y) == (other.ID, other.x, other.y)

@@ -21,7 +21,7 @@ class Edge:
         Edge.n_edges += 1
         self.ID = Edge.n_edges
         self.weight = weight
-        self.nodes = {node1, node2}
+        self.nodes = frozenset([node1, node2])
         self.directed = directed
 
     def __eq__(self, other):
@@ -31,7 +31,9 @@ class Edge:
         return hash((self.ID, self.weight, self.nodes, self.directed))
 
     def generate_dict(self):
-        nodes = [self.nodes[0].generate_dict(), self.nodes[1].generate_dict()]
+        nodes = []
+        for node in self.nodes:
+            nodes.append(node.generate_dict())
         dictionary = {
             'ID': self.ID,
             'weight': self.weight,
