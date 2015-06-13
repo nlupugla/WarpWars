@@ -20,7 +20,7 @@
 				<h5 id="black-mana-indicator">BLACK: 0</h6>
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
-			<button id="end-turn-button" onclick="makeGetRequest('{{ end_turn }}', function(){})">END TURN</button>
+			<button id="end-turn-button" onclick="endTurn(), function(){})">END TURN</button>
 			
 			
 		</div>
@@ -75,8 +75,9 @@
 			
 			// perform initial setup of the canvas
 			function setup(){
-				createBoard();
-				placeStartingWarplings();
+				makeGetRequest('{{ state }}', updateState)
+				// createBoard();
+				// placeStartingWarplings();
 				draw();
 			}
 			
@@ -126,7 +127,7 @@
 					currentTurn = PlayerColors.WHITE;
 				}
 				// and the backend
-				makeGetRequest('{{ end_turn }}', function(){})
+				makeGetRequest('{{ end_turn }}', function(){}) // change this to callback to updateState, maybe?
 				currentTurnNumber++;
 				updateInterface();
 			}
