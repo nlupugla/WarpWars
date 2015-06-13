@@ -19,7 +19,9 @@
 				<h5 id="white-mana-indicator">WHITE: 0</h6>
 				<h5 id="black-mana-indicator">BLACK: 0</h6>
 			</div>
-			<button onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
+			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
+			<button id="end-turn-button" onclick="makeGetRequest('{{ end_turn }}', function(){})">END TURN</button>
+			
 			
 		</div>
 		<script type="text/javascript" src="{{ drawing_file }}" ></script>
@@ -116,12 +118,14 @@
 			
 			// end turn, handling all necessary cleanup
 			function endTurn(){
-				// flip the turn
+				// flip the turn on the frontend
 				if(currentTurn == PlayerColors.WHITE){
 					currentTurn = PlayerColors.BLACK;
 				} else {
 					currentTurn = PlayerColors.WHITE;
 				}
+				// and the backend
+				makeGetRequest('{{ end_turn }}', function(){})
 				currentTurnNumber++;
 				updateInterface();
 			}
@@ -182,6 +186,7 @@
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 						
+						// TODO: actually check the response code; probably shout at the user if the move was illegal somehow, etc
 						makeGetRequest('/update/game/' + {{ game_id }} + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){})
 						
 						// flip the turn

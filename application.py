@@ -47,7 +47,7 @@ def create_game(game_id):
     # TODO: make this more robust somehow
     if game_id in games: return redirect(url_for('root'))
 
-    # set this player as white
+    # set this player as black
     session['color-' + str(game_id)] = BLACK
 
     # actually create the game
@@ -91,11 +91,12 @@ def game(game_id):
     if game_id not in games: return redirect(url_for('root'))
 
     drawing_file = url_for('static', filename = 'drawing.js')
-    changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove the last_state so client can fill it in
+    changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove last_state so client can fill it in
     state = url_for('game_status', game_id = game_id)
+    end_turn = url_for('game_update_end_turn', game_id = game_id)
     color = session['color-' + str(game_id)]
     return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state,
-                           changed = changed, player_color = color)
+                           changed = changed, end_turn = end_turn, player_color = color)
 
 @app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>')
 def game_update_move(game_id, unit_id, x, y):
@@ -106,18 +107,30 @@ def game_update_move(game_id, unit_id, x, y):
 
     An error will also be returned if the indicated game does not exist.
 
-    :param game_id: the game containing the unit that is moving
+    :param game_id: the id of the game containing the unit to be moved
     :param unit_id: the id of the unit that is moving
     :param x: the x-coordinate the piece is moving to
     :param y: the y-coordinate the piece is moving to
-    :return: the game state after the move, as JSON
+    :return: whether or not the update succeeded, as JSON
     """
     if game_id not in games: return format_response('error', 'Game does not exist')
     # TODO: actually send the data to the backend and verify it before doing a legit state update
     # call Game.move
     games[game_id].move(unit_id, x, y)
     # TODO: game_states[game_id] += 1
-    return format_response('success', 'default success!') # game_status(game_id)
+    return format_response('success', 'default success!') # maybe return game_status(game_id), or just wait for autoupdate?
+
+@app.route('/update/game/<int:game_id>/end/turn')
+def game_update_end_turn(game_id):
+    """
+    End the current turn of the given game.
+
+    :param game_id: the id of the game to update
+    :return: whether or not the update succeeded, as JSON
+    """
+    if game_id not in games: return format_response('error', 'Game does not exist')
+    games[game_id].next_turn()
+    return format_response('success', 'default success!')
 
 @app.route('/changed/game/<int:game_id>/<int:last_state>')
 def game_changed(game_id, last_state):
@@ -129,7 +142,7 @@ def game_changed(game_id, last_state):
     :return: whether or not there is new state to be fetched or an error, as JSON
     """
     if game_id not in games: return format_response('error', 'Game does not exist')
-    return dumps({'changed': True if game_states[game_id] > last_state else False}) # absolutely disgusting
+    return dumps({'changed': True if games[game_id].state_ID > last_state else False}) # absolutely disgusting
 
 @app.route('/state/game/<int:game_id>')
 def game_status(game_id):
