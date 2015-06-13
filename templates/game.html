@@ -45,7 +45,7 @@
 			// Board constants
 			var WIDTH = LINES-1;
 			var HEIGHT = WIDTH;
-			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2});
+			var PieceTypes = Object.freeze({EMPTY: 0, WARPLING: 1, KING: 2, KNIGHT: 3});
 			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
 			var EMPTY_ID = 0;
 			var PlayerColors = Object.freeze({WHITE: 0, BLACK: 1});
@@ -75,7 +75,7 @@
 			
 			// perform initial setup of the canvas
 			function setup(){
-				makeGetRequest('{{ state }}', updateState)
+				makeGetRequest('{{ state }}', updateState);
 				// createBoard();
 				// placeStartingWarplings();
 				draw();

@@ -29,10 +29,13 @@ function drawLine(startX, startY, endX, endY){
 	ctx.stroke();
 }
 
-// draw a circle; x and y must be coordinates of the top-left of the grid square
-function drawCircle(x, y){
+// draw a circle; x and y must be canvas coordinates of the top-left of the grid square
+function drawCircle(x, y, size){
+	if(size === undefined){
+		size = 3/8
+	}
 	ctx.beginPath();
-	ctx.arc(x+STEP/2, y+STEP/2, STEP*3/8, 0, Math.PI*2);
+	ctx.arc(x+STEP/2, y+STEP/2, STEP*size, 0, Math.PI*2);
 	ctx.fill();
 	ctx.stroke();
 }
@@ -70,6 +73,23 @@ function drawPiece(boardX, boardY, piece){
 			break;
 		case PieceTypes.WARPLING:
 			drawCircle(x, y);
+			break;
+		case PieceTypes.KING:
+			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 2, y + STEP /2);
+			drawLine(x + STEP / 2, y + STEP / 2, x + 3 * STEP / 4, y + STEP / 4);
+			drawLine(x + STEP / 4, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 4, x + 3 * STEP / 4, y + STEP / 4);
+			drawCircle(x, y, 3/16);
+			break;
+		case PieceTypes.KNIGHT:
+			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
+			drawLine(x + 2 * STEP / 5, y + STEP / 4, x + STEP / 2, y + STEP / 4);
+			drawLine(x + STEP / 2, y + STEP / 4, x + 3 * STEP / 4, y + 2 * STEP / 5);
+			drawLine(x + 3 * STEP / 4, y + 2 * STEP / 5, x + 3 * STEP / 4, y + 3 * STEP / 5);
+			drawLine(x + 3 * STEP / 4, y + 3 * STEP / 5, x + STEP / 2, y + 3 * STEP / 5);
+			drawLine(x + STEP / 2, y + 3 * STEP / 5, x + 3 * STEP / 5, y + 3 * STEP / 4);
+			drawLine(x + 3 * STEP / 5, y + 3 * STEP / 4, x + STEP / 4, y + 3 * STEP / 4);
 			break;
 	}
 }
