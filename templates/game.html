@@ -131,34 +131,6 @@
 				updateInterface();
 			}
 			
-			// returns a list of points moveable to by the piece on the given board square
-			function getMoveableSpaces(piece){
-				return piece.legal_moves
-				
-/*
-				list = new Array();
-				returnList = new Array();
-				switch(piece.type){
-					// effective default cause, here so we can fail-fast
-					case PieceTypes.EMPTY:
-						break;
-					case PieceTypes.WARPLING:
-						if(boardX > 0) list.push([boardX-1, boardY]);
-						if(boardX+1 < WIDTH) list.push([boardX+1, boardY]);
-						if(boardY > 0) list.push([boardX, boardY-1]);
-						if(boardY+1 < HEIGHT) list.push([boardX, boardY+1]);
-						break; // redundant, but whatever
-				}
-				// remove spaces occupied by friendly pieces
-				for(var i = 0; i < list.length; i++){
-					if(board[list[i][0]][list[i][1]].color != piece.color){
-						returnList.push(list[i]);
-					}
-				}
-				return returnList;
-*/
-			}
-			
 			// handle clicks
 			function handleClick(event){
 				// do we need to check that these are inside the board and handle them being outside?
@@ -178,7 +150,7 @@
 						drawPiece(x, y, board[x][y]);
 						
 						// paint all spaces the piece can move to
-						moveableSpaces = getMoveableSpaces(board[x][y]);
+						moveableSpaces = board[x][y].moves;
 						for(var i = 0; i < moveableSpaces.length; i++){
 							drawSpace(moveableSpaces[i][0], moveableSpaces[i][1], "#00ff00");
 							drawPiece(moveableSpaces[i][0], moveableSpaces[i][1], board[moveableSpaces[i][0]][moveableSpaces[i][1]]);
@@ -186,7 +158,7 @@
 					}
 				} else if(clickState == ClickStates.AWAITING_CLICK_FOR_MOVEMENT){
 					// check if target space is moveable to by current piece
-					if(getMoveableSpaces(board[firstX][firstY]).some(function(e){return ((e[0] == x) && (e[1] == y))})){
+					if(board[firstX][firstY].moves.some(function(e){return ((e[0] == x) && (e[1] == y))})){
 						// actually move the piece
 						board[x][y] = board[firstX][firstY];
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
