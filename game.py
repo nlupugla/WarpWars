@@ -29,7 +29,6 @@ class Game:
         self.n_units_deployed = 0 # total number of units deployed in the game
         self.state_ID = 0 # total number different states TODO: have methods increment this when state changes
         self.over = False  # set to true when the game ends
-        pass
 
     def next_turn(self):
         """
@@ -63,12 +62,13 @@ class Game:
         :param y: y coordinate of destination.
         :return: True if the move is legal, False otherwise.
         """
+        # TODO: Do we want more specific return values or error messages?
         # The destination must not be off the board.
         if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
         if x < 0 or y < 0: return False
-       # Grab the unit by ID.
+        # Grab the unit by ID.
         unit = self.units[unit_ID]
-        movement = unit.graph
+        movement = unit.moves
         # The destination must not be a unit of the same color or an obstruction.
         if self.board[x][y] == unit.color or self.board[x][y] == OBSTRUCTION:
             return False
@@ -86,42 +86,6 @@ class Game:
 
     def move(self, unit_ID, x, y):
         """
-        Move a unit.
-
-        :param unit_ID: Unique numeric identifier of the unit to move
-        :param x: x position of move
-        :param y: y position of move
-        :return: If the move was legal, return True, otherwise False.
-        """
-        legality = False
-        # check that the destination is on the board
-        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
-        if x < 0 or y < 0: return legality
-
-        # grab unit by ID
-        unit = self.units[unit_ID]
-
-        # loop through all possible paths available to the unit
-        for path in unit.moves:
-            x_tracker = unit.x
-            y_tracker = unit.y
-            # if one of the moves in the path is the destination, and you can get there legally, move the piece
-            for move in path:
-                x_tracker += move.x
-                y_tracker += move.y
-                tile_value = self.board[x_tracker][y_tracker]
-                # check that the move doesn't collide with an obstacle is illegal
-                if (tile_value == OBSTRUCTION and not move.fly) or \
-                        (tile_value == unit.color and not move.fly):
-                    break
-                # when you get to the destination, place the unit there
-                if x_tracker == x and y_tracker == y:
-                    self.place(unit, x, y)
-                    legality = True
-                    return legality
-
-    def new_move(self, unit_ID, x, y):
-        """
         Attempt to move a unit to the specified location.
 
         :param unit_ID: Unique numeric identifier of the unit to move.
@@ -133,28 +97,23 @@ class Game:
         if not legal:
             return False
         unit = self.units[unit_ID]
-        self.new_place(unit, x, y)
+        self.place(unit, x, y)
         return True
 
     def place(self, unit, x, y):
         """
-        Place a unit at the specified coordinates
+        Place a unit at the specified destination.
 
-        :param unit: the unit to place
-        :param x: x position
-        :param y: y position
-        :return: nothing
+        Put a unit at the given position, take if necessary, then update the movement graph of all pieces. Note that,
+        unlike Game.move, this method does not check legality.
+        :param unit: the unit to place.
+        :param x: x coordinate of the destination.
+        :param y: y coordinate of the destination.
+        :return: nothing.
         """
-        unit.x = x
-        unit.y = y
-        if self.board[x][y] == (not unit.color):
-            self.take(x, y)
-        self.board[x][y] = unit.color
-
-    def new_place(self, unit, x, y):
-        movement = unit.graph
+        movement = unit.moves
         # update graph position
-        for node in movement:
+        for node in movement.mapping:
             node.x += x - unit.x
             node.y += y - unit.y
         # update unit position
@@ -167,13 +126,13 @@ class Game:
 
     def update_movements(self):
         """
-        Update the movement graph of every unit to reflect the current board.
+        Update the movement graph of every unit in play to reflect the current board.
 
         :return: nothing.
         """
         for key in self.units:
             unit = self.units[key]
-            movement = unit.graph
+            movement = unit.moves
             for x in range(BOARD_LENGTH):
                 for y in range(BOARD_HEIGHT):
                     if self.board[x][y] != EMPTY_TILE and (x, y) != (unit.x, unit.y):
@@ -181,37 +140,62 @@ class Game:
                             movement.block_position(x, y)
 
     def take(self, x, y):
+        """
+        Take a unit at the given position out of the game.
+
+        :param x: x coordinate of position.
+        :param y: y coordinate of position.
+        :return: True if these is a unit at the given position, False otherwise.
+        """
+        # TODO: Rename to destroy?
         for key in self.units:
             if self.units[key].x == x and self.units[key].y == y:
                 del self.units[key]
+                self.board[x][y] = EMPTY_TILE
+                self.update_movements()
                 return True
         return False
 
-    def deploy(self, card_ID, x, y):
+    def deploy_is_legal(self, unit_type, x, y):
         """
-        Deploys a unit onto the board.
+        Return whether deploying a card to the specified destination is legal or not.
 
-        :param card_ID: unique identifier of card to be deployed as unit
-        :param x: x position of deployment destination
-        :param y: y position of deployment destination
-        :return:
+        :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
+        :param x: x coordinate of deployment destination.
+        :param y: y coordinate of deployment destination.
+        :return: True if the deploy is legal, False otherwise.
         """
-        legality = False
+        # TODO: Do we want more specific return values or error messages?
+        # TODO: Right now we're assuming only the active player can deploy, should this always be true?
+        # The destination must not be off the board.
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
+        if x < 0 or y < 0: return False
+        # The destination must be an empty tile.
+        if self.board[x][y] != EMPTY_TILE:
+            return False
+        # if card.cost > player.warp: return False
+        # The player must have enough cards in their palette of the card type.
+        if self.players[self.active_color].palette[unit_type] < 1:
+            return False
+        return True
 
-        # grab card by ID
-        player = self.players[self.active_color]
-        # TODO: This is grabing by card type right now
-        card = player.palette[card_ID]
 
-        # check legality
-        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return legality
-        if x < 0 or y < 0: return legality
-        if self.board[x][y] != EMPTY_TILE: return legality
-        # if card.cost > player.warp: return legality
-        # TODO: Implement a cap on the number of cards of the same type you can play?
+    def deploy(self, unit_type, x, y):
+        """
+        Deploy a unit onto the board.
 
-        unit = Unit()
-        unit.clone_unit(CARD_DICTIONARY[card])
+        :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
+        :param x: x coordinate of deployment destination
+        :param y: y coordinate of deployment destination
+        :return: True if the deploy is legal, False otherwise.
+        """
+        legal = self.deploy_is_legal(unit_type, x, y)
+        if not legal:
+            return False
+        # decrement number of units of the type in the player's palette by one.
+        self.players[self.active_color].palette[unit_type] -= 1
+        # initialize unit
+        unit = Unit(CARD_DICTIONARY[unit_type])
         unit.color = self.active_color
         self.n_units_deployed += 1
         unit.ID = self.n_units_deployed

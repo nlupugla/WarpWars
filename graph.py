@@ -1,6 +1,7 @@
 from node import Node
 from edge import Edge
 from constants import BLOCKED
+from copy import deepcopy
 
 class Graph:
     """
@@ -11,13 +12,16 @@ class Graph:
     ask nicely and maybe, maybe we'll get around to it.
     """
 
-    def __init__(self):
+    def __init__(self, graph=None):
         """
         Create a new graph.
 
         :return: an initialized Graph object
         """
-        self.mapping = {} # Key: node -> Item: edges
+        if graph is None:
+            self.mapping = {} # Key: node -> Item: edges
+        else:
+            self = deepcopy(graph)
 
     def add_node(self, node):
         """

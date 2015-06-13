@@ -1,17 +1,13 @@
 import unittest
 
 from game import Game
-from unit import Unit
 from player import Player
-from card_dictionary import CARD_DICTIONARY
 from graph import Graph
 from constants import *
 
 def test_game():
     return_game = Game()
-    player1 = Player(WHITE)
-    player2 = Player(BLACK)
-    return_game.players = [player1, player2]
+    return_game.players = [Player(WHITE), Player(BLACK)]
     return_game.active_color = WHITE
     return_game.deploy(WARPLING_TYPE, 5, 5)
     return_game.active_color = BLACK
@@ -56,6 +52,17 @@ class GameTest(unittest.TestCase):
         my_graph.connect_all_to(my_graph.find_node_by_position(0,0))
         self.assertEquals(my_graph.num_nodes(), 7)
         self.assertEquals(my_graph.num_edges(), 13)
+
+    def test_movement(self):
+        game = test_game()
+        self.assertFalse(game.move(2, 6, 6)) # should be False because start location = end location
+        self.assertFalse(game.move(1, 6, 6)) # should be False because this move is out of range
+        self.assertEqual(game.board[5][5], WHITE_TILE)
+        self.assertEqual(game.board[6][6], BLACK_TILE)
+        self.assertTrue(game.move(1, 5, 6))
+        self.assertEqual(game.board[5][6], WHITE_TILE)
+        self.assertTrue(game.move(2, 5, 6))
+        self.assertEqual(game.board[5][6], BLACK_TILE)
 
 if __name__ == '__main__':
     unittest.main()
