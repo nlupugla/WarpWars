@@ -108,9 +108,6 @@ function drawPiece(boardX, boardY, piece){
 			break;
 		case PieceTypes.BISHOP:
 			drawPolygon([[x + STEP / 8, y + 7 * STEP / 8], [x + STEP / 2, y + STEP / 4], [x + 7 * STEP / 8, y + 7 * STEP / 8]]);
-			/*drawLine(x + STEP / 8, y + 7 * STEP / 8, x + STEP / 2, y + STEP / 8);
-			drawLine(x + 7 * STEP / 8, y + 7 * STEP / 8, x + STEP / 2, y + STEP / 8);
-			drawLine(x + STEP / 8, y + 7 * STEP / 8, x + 7 * STEP / 8, y + 7 * STEP / 8);*/
 			drawCircle(x + STEP / 2, y + 3 * STEP / 16, 1/16, 0, false);
 			break;
 		case PieceTypes.QUEEN:

@@ -20,7 +20,7 @@
 				<h5 id="black-mana-indicator">BLACK: 0</h6>
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
-			<button id="end-turn-button" onclick="endTurn(), function(){})">END TURN</button>
+			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
 			
 			
 		</div>
@@ -57,6 +57,7 @@
 			var firstY = -1;
 			
 			// Game state tracking
+			var firstUpdate = true;
 			var currentState = 0;
 			var playerColor = {{ player_color }}; // the player playing through this client
 			var currentTurn = PlayerColors.BLACK;
@@ -78,7 +79,7 @@
 				makeGetRequest('{{ state }}', updateState);
 				// createBoard();
 				// placeStartingWarplings();
-				draw();
+				// draw();
 			}
 			
 			// create and fill the board with empty spaces
@@ -86,7 +87,7 @@
 				for(var i = 0; i < WIDTH; i++){
 					board[i] = new Array(HEIGHT);
 					for(var j = 0; j < HEIGHT; j++){
-						board[i][j] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
+						board[i][j] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID, []);
 					}
 				}
 			}
@@ -185,9 +186,14 @@
 			
 			canvas.addEventListener("click", handleClick, false);
 			
+			// function to pass to setInterval, to check for new state
+			function checkForNewState(){
+				makeGetRequest('{{ changed }}' + currentState, updateOnNewState);
+			}
+			
 			// check for new state, updating if we've received any
 			function updateOnNewState(data){
-				if(data['changed']){
+				if(data['changed'] == true){
 					makeGetRequest('{{ state }}', updateState);
 				}
 			}
@@ -195,7 +201,7 @@
 			// update client-side state with state from the server
 			function updateState(new_state){
 				// update currentState
-				currentState = new_state['state_ID']
+				currentState = new_state['state_ID'];
 				
 				// wipe the board, place all the new units
 				createBoard();
@@ -220,7 +226,13 @@
 				clickState = ClickStates.NO_PREVIOUS_CLICK;
 				
 				// update the board and interface
-				redraw();
+				// if it's the first time, draw() the lines
+				if(firstUpdate){
+					draw();
+					firstUpdate = false;
+				} else {
+					redraw();
+				}
 				updateInterface();
 			}
 			
@@ -236,6 +248,7 @@
 						callback(data);
 					} else {
 						// We reached our target server, but it returned an error
+						// do something competent, maybe?
 					}
 				};
 
@@ -246,7 +259,7 @@
 				request.send();
 			}
 			
-			// var refreshID = window.setInterval(makeGetRequest, 100, '{{ changed }}' + currentState, updateOnNewState);
+			var refreshID = window.setInterval(checkForNewState, 100);
 		</script>
 	</body>
 </html>
