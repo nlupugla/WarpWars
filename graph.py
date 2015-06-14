@@ -1,7 +1,6 @@
 from node import Node
 from edge import Edge
 from constants import BLOCKED
-from copy import deepcopy
 
 class Graph:
     """
@@ -12,16 +11,31 @@ class Graph:
     ask nicely and maybe, maybe we'll get around to it.
     """
 
-    def __init__(self, graph=None):
+    def __init__(self):
         """
         Create a new graph.
 
         :return: an initialized Graph object
         """
-        if graph is None:
-            self.mapping = {} # Key: node -> Item: edges
-        else:
-            self = deepcopy(graph)
+        self.mapping = {} # Key: node -> Item: edges
+
+    def copy(self):
+        """
+        Return a copy of the graph.
+
+        :return: a new graph with the same values as the caller.
+        """
+        graph = Graph()
+        for node in self.mapping:
+            copy_of_node = node.copy()
+            graph.add_node(copy_of_node)
+            for other_node in self.mapping:
+                edge = self.find_edge(node, other_node)
+                if edge is not None:
+                    copy_of_other_node = graph.find_node_by_ID(other_node.ID)
+                    if copy_of_other_node is not None:
+                        graph.connect(copy_of_node, copy_of_other_node, edge.weight, edge.directed)
+        return graph
 
     def add_node(self, node):
         """
@@ -242,7 +256,7 @@ class Graph:
         :return: the set of all nodes neighboring the given node.
         """
         connected_edges = self.mapping[node]
-        neighbours = set([node]) # a node always neighbours itself
+        neighbours = set([node])  # a node always neighbours itself
         for edge in connected_edges:
             neighbours |= edge.nodes
         return neighbours

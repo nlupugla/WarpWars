@@ -23,7 +23,14 @@ class Node:
         return (self.ID, self.x, self.y) == (other.ID, other.x, other.y)
 
     def __hash__(self):
-        return hash((self.ID, self.x, self.y))
+        return hash(self.ID)
+
+    def copy(self):
+        node = Node()
+        node.ID = self.ID
+        node.x = self.x
+        node.y = self.y
+        return node
 
     def generate_dict(self):
         dictionary = {

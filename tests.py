@@ -1,9 +1,11 @@
 import unittest
 
 from game import Game
+from unit import Unit
 from player import Player
 from graph import Graph
 from constants import *
+from card_dictionary import CARD_DICTIONARY
 
 def test_game():
     return_game = Game()
@@ -53,6 +55,16 @@ class GameTest(unittest.TestCase):
         self.assertEquals(my_graph.num_nodes(), 7)
         self.assertEquals(my_graph.num_edges(), 13)
 
+        my_new_graph = my_graph.copy()
+        self.assertEquals(my_new_graph.num_nodes(), 7)
+        self.assertEquals(my_new_graph.num_edges(), 13)
+        for node in my_graph.mapping:
+            for other_node in my_graph.mapping:
+                copy_of_node = my_new_graph.find_node_by_ID(node.ID)
+                copy_of_other_node = my_new_graph.find_node_by_ID(other_node.ID)
+                if my_graph.are_neighbours(node, other_node):
+                    self.assertTrue(my_new_graph.are_neighbours(copy_of_node, copy_of_other_node))
+
     def test_movement(self):
         game = test_game()
         self.assertFalse(game.move(2, 6, 6)) # should be False because start location = end location
@@ -66,13 +78,3 @@ class GameTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-"""
-    # test that moving works as it should
-    print not game.move(1, 6, 6) # should print true as this is out of range
-    print game.board[6][6] == BLACK_TILE # should still be true
-    game.move(1, 5, 6)
-    print game.board[5][6] == WHITE_TILE
-    game.move(1, 6, 6)
-    print game.board[6][6] == WHITE_TILE
-    print game.units
-"""

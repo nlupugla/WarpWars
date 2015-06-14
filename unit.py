@@ -1,6 +1,5 @@
 from constants import *
 from graph import Graph
-from copy import deepcopy
 
 class Unit:
     """
@@ -10,24 +9,37 @@ class Unit:
     identifier to distinguish it from others of the same name.
     """
 
-    def __init__(self, unit=None):
+    def __init__(self):
         """
         Create a unit with default values if no argument given or a deep copy of the input unit if an argument is given.
 
-        :param unit: a unit to copy.
         :return: an initialized unit object
         """
-        if unit is None:
-            self.ID = 0 # unique identifier of every unit in play
-            self.name = "" # name of the unit
-            self.type = 0 # number specifying unit's type, eg: WARPLING_TYPE
-            self.color = WHITE # number specifying to which player the unit belongs
-            self.x = 0  # x position
-            self.y = 0  # y position
-            self.moves = Graph() # graph specifying the movement of the unit
-            self.abilities = {} # a list of all the abilities the unit owns
-        else:
-            self = deepcopy(unit)
+        self.ID = 0  # unique identifier of every unit in play
+        self.name = ""  # name of the unit
+        self.type = 0  # number specifying unit's type, eg: WARPLING_TYPE
+        self.color = WHITE  # number specifying to which player the unit belongs
+        self.x = 0  # x position
+        self.y = 0  # y position
+        self.moves = Graph()  # graph specifying the movement of the unit
+        self.abilities = {}  # a list of all the abilities the unit owns
+
+    def copy(self):
+        """
+        Return a copy of the unit.
+
+        :return: a unit with the same values as the caller.
+        """
+        unit = Unit()
+        unit.ID = self.ID
+        unit.name = self.name
+        unit.type = self.type
+        unit.color = self.color
+        unit.x = self.x
+        unit.y = self.y
+        unit.moves = self.moves.copy()
+        unit.abilities = self.abilities
+        return unit
 
     def generate_dict(self):
         """
@@ -35,7 +47,6 @@ class Unit:
 
         :return: a dictionary formatted to be an argument for json.dumps
         """
-        moves = self.moves.generate_dict()
         abilities = []
  #       for ability in abilities:
  #           abilities.append(ability.generate_dict())
@@ -46,7 +57,7 @@ class Unit:
             'color': self.color,
             'x': self.x,
             'y': self.y,
-            'moves': moves,
+            'legal_moves': 3,  # Todo: change this
             'abilities': abilities,
         }
         return dictionary

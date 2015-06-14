@@ -8,7 +8,7 @@ class Edge:
     also be directed, in which case it is only possible to traverse the edge in one direction, not both.
     """
     n_edges = 0
-    def __init__(self, node1, node2, weight = 1, directed = False):
+    def __init__(self, node1, node2, weight=1, directed=False):
         """
         Create an edge with its own unique identifier
 
@@ -28,7 +28,13 @@ class Edge:
         return (self.ID, self.weight, self.nodes, self.directed) == (other.ID, other.weight, other.nodes, other.directed)
 
     def __hash__(self):
-        return hash((self.ID, self.weight, self.nodes, self.directed))
+        return hash(self.ID)
+
+    def copy(self):
+        nodes = []
+        for node in self.nodes:
+            nodes.append(node.copy())
+        return Edge(nodes[0], nodes[1], self.weight, self.directed)
 
     def generate_dict(self):
         nodes = []

@@ -2,8 +2,6 @@ from json import dumps
 
 from constants import *
 from card_dictionary import CARD_DICTIONARY
-from unit import Unit
-from graph import Graph
 
 class Game:
     """
@@ -21,13 +19,13 @@ class Game:
         self.turn = 0  # 1 on the first turn, 2 on the second turn...
         self.active_color = WHITE  # color currently taking its turn
         self.phase = QUEEN_PHASE  # int indicating current phase
-        self.units = {} # list of units in play
-        self.board = [] # 2d array of board elements
+        self.units = {}  # list of units in play key: unit_ID -> item: unit
+        self.board = []  # 2d array of board elements
         for x in range(BOARD_LENGTH):
             self.board.append([EMPTY_TILE]*BOARD_HEIGHT)
         self.players = []  # list of players in the game
-        self.n_units_deployed = 0 # total number of units deployed in the game
-        self.state_ID = 0 # total number different states TODO: have methods increment this when state changes
+        self.n_units_deployed = 0  # total number of units deployed in the game
+        self.state_ID = 0  # total number different states
         self.over = False  # set to true when the game ends
 
     def next_turn(self):
@@ -39,6 +37,7 @@ class Game:
         """
         self.turn += 1
         self.active_color = int(not self.active_color)
+        self.state_ID += 1
 
     def next_phase(self):
         """
@@ -52,6 +51,7 @@ class Game:
             inactive_player.warp = 0
 #            inactive_player.draw()
         self.phase = (self.phase + 1)%3
+        self.state_ID += 1
 
     def move_is_legal(self, unit_ID, x, y):
         """
@@ -71,18 +71,39 @@ class Game:
         movement = unit.moves
         # The destination must not be a unit of the same color or an obstruction.
         if self.board[x][y] == unit.color or self.board[x][y] == OBSTRUCTION:
+            print "The destination must not be a unit of the same color or an obstruction."
             return False
         # The destination must be different from the starting location.
         if (x, y) == (unit.x, unit.y):
+            print "The destination must be different from the starting location."
             return False
-        # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
         start_node = movement.find_node_by_position(unit.x, unit.y)
         end_node = movement.find_node_by_position(x, y)
-        for node in end_node.neighborhood():
-            if movement.traversal_cost(start_node, end_node) < BLOCKED:
+        # The destination must be within the unit's range.
+        if end_node is None:
+            print "The destination must be within the unit's range."
+            return False
+        # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
+        for node in movement.neighbourhood(end_node):
+            if movement.traversal_cost(node, end_node) < BLOCKED:
                 return True
         # If they are all blocked, the move is illegal.
+        print "All paths are blocked."
         return False
+
+    def list_legal_moves(self, unit_ID):
+        """
+        Return the list of legal moves for the given unit.
+
+        :param unit_ID: unique identifier of the unit.
+        :return: a 2D list where (legal_moves[i][0], legal_moves[i][1]) is the (x, y) coordinate of the ith legal move.
+        """
+        legal_moves = []
+        for x in range(BOARD_LENGTH):
+            for y in range(BOARD_HEIGHT):
+                if self.move_is_legal(unit_ID, x, y):
+                    legal_moves.append([x, y])
+        return legal_moves
 
     def move(self, unit_ID, x, y):
         """
@@ -98,6 +119,7 @@ class Game:
             return False
         unit = self.units[unit_ID]
         self.place(unit, x, y)
+        self.state_ID += 1
         return True
 
     def place(self, unit, x, y):
@@ -123,6 +145,7 @@ class Game:
             self.take(x, y)
         self.board[x][y] = unit.color
         self.update_movements()
+        self.state_ID += 1
 
     def update_movements(self):
         """
@@ -153,6 +176,7 @@ class Game:
                 del self.units[key]
                 self.board[x][y] = EMPTY_TILE
                 self.update_movements()
+                self.state_ID += 1
                 return True
         return False
 
@@ -195,12 +219,13 @@ class Game:
         # decrement number of units of the type in the player's palette by one.
         self.players[self.active_color].palette[unit_type] -= 1
         # initialize unit
-        unit = Unit(CARD_DICTIONARY[unit_type])
+        unit = CARD_DICTIONARY[unit_type].copy()
         unit.color = self.active_color
         self.n_units_deployed += 1
         unit.ID = self.n_units_deployed
         self.units[unit.ID] = unit
         self.place(unit, x, y)
+        self.state_ID += 1
         return True
 
     def state(self):
