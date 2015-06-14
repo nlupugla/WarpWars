@@ -57,7 +57,6 @@ class Unit:
             'color': self.color,
             'x': self.x,
             'y': self.y,
-            'legal_moves': 3,  # Todo: change this
             'abilities': abilities,
         }
         return dictionary

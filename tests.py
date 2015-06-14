@@ -75,6 +75,7 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.board[5][6], WHITE_TILE)
         self.assertTrue(game.move(2, 5, 6))
         self.assertEqual(game.board[5][6], BLACK_TILE)
+        print game.state()
 
 if __name__ == '__main__':
     unittest.main()

@@ -71,24 +71,20 @@ class Game:
         movement = unit.moves
         # The destination must not be a unit of the same color or an obstruction.
         if self.board[x][y] == unit.color or self.board[x][y] == OBSTRUCTION:
-            print "The destination must not be a unit of the same color or an obstruction."
             return False
         # The destination must be different from the starting location.
         if (x, y) == (unit.x, unit.y):
-            print "The destination must be different from the starting location."
             return False
         start_node = movement.find_node_by_position(unit.x, unit.y)
         end_node = movement.find_node_by_position(x, y)
         # The destination must be within the unit's range.
         if end_node is None:
-            print "The destination must be within the unit's range."
             return False
         # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
         for node in movement.neighbourhood(end_node):
             if movement.traversal_cost(node, end_node) < BLOCKED:
                 return True
         # If they are all blocked, the move is illegal.
-        print "All paths are blocked."
         return False
 
     def list_legal_moves(self, unit_ID):
@@ -139,6 +135,7 @@ class Game:
             node.x += x - unit.x
             node.y += y - unit.y
         # update unit position
+        self.board[unit.x][unit.y] = EMPTY_TILE
         unit.x = x
         unit.y = y
         if self.board[x][y] == (not unit.color):
@@ -247,7 +244,9 @@ class Game:
         units = []
         for key in self.units:
             unit = self.units[key]
-            units.append(unit.generate_dict())
+            unit_dict = unit.generate_dict()
+            unit_dict['legal_moves'] = self.list_legal_moves(unit.ID)
+            units.append(unit_dict)
         players = []
 #        for player in self.players:
 #            players.append(player.generate_dict())
