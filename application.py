@@ -57,7 +57,7 @@ def create_game(game_id):
     session['color-' + str(game_id)] = BLACK
 
     # actually create the game
-    games[game_id] = Game() # test_game() #Game()
+    games[game_id] = test_game() #Game()
 
     return redirect('/game/' + str(game_id))
 
