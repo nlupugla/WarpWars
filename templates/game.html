@@ -20,9 +20,7 @@
 				<h5 id="black-mana-indicator">BLACK: 0</h6>
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
-			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
-			
-			
+			<button id="end-turn-button" onclick="endTurn()">END TURN</button>	
 		</div>
 		<script type="text/javascript" src="{{ drawing_file }}" ></script>
 		<script type="text/javascript">
@@ -93,7 +91,7 @@
 			}
 			
 			// place a starting set of warplings for both players
-			function placeStartingWarplings(){
+			/*function placeStartingWarplings(){
 				for(var i = 0; i < WIDTH; i++){
 					if(i % 2 == 0){
 						board[i][0] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4);
@@ -110,7 +108,7 @@
 				board[4][6] = new Piece(PieceTypes.BISHOP, PieceColors.BLACK, 42);
 				board[4][7] = new Piece(PieceTypes.QUEEN, PieceColors.BLACK, 43);
 				board[5][4] = new Piece(PieceTypes.KING, PieceColors.BLACK, 44);
-			}
+			}*/
 			
 			// fill all user-facing interface elements
 			function updateInterface(){
@@ -171,7 +169,8 @@
 						board[firstX][firstY] = new Piece(PieceTypes.EMPTY, PieceColors.EMPTY, EMPTY_ID);
 						
 						// TODO: actually check the response code; probably shout at the user if the move was illegal somehow, etc
-						makeGetRequest('/update/game/' + {{ game_id }} + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){})
+						makeGetRequest('/update/game/' + {{ game_id }} + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){});
+						// make the callback here endTurn()? - that way that will always happen after...
 						
 						// flip the turn
 						endTurn();
