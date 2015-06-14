@@ -67,15 +67,19 @@ class GameTest(unittest.TestCase):
 
     def test_movement(self):
         game = test_game()
+        ID = game.state_ID
         self.assertFalse(game.move(2, 6, 6)) # should be False because start location = end location
         self.assertFalse(game.move(1, 6, 6)) # should be False because this move is out of range
+        self.assertEqual(ID, game.state_ID)
         self.assertEqual(game.board[5][5], WHITE_TILE)
         self.assertEqual(game.board[6][6], BLACK_TILE)
         self.assertTrue(game.move(1, 5, 6))
+        self.assertLess(ID, game.state_ID)
+        ID = game.state_ID
         self.assertEqual(game.board[5][6], WHITE_TILE)
         self.assertTrue(game.move(2, 5, 6))
+        self.assertLess(ID, game.state_ID)
         self.assertEqual(game.board[5][6], BLACK_TILE)
-        print game.state()
 
 if __name__ == '__main__':
     unittest.main()

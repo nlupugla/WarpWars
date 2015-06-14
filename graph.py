@@ -138,8 +138,8 @@ class Graph:
         Connect all nodes geometrically adjacent to each other in the graph.
 
         This method will not connect two nodes that are already connected to each other. Nodes are considered adjacent
-        when the vector between them is (+/-1, 0) or (0, +/-1). For example, nodes at positions (2,3) and (3, 3) are
-        adjacent to each other but nodes at (2,3) and (3,4) are not. A node is not adjacent to itself.
+        when the vector between them is (+/-1, 0) or (0, +/-1). For example, nodes at positions (2, 3) and (3, 3) are
+        adjacent to each other but nodes at (2, 3) and (3, 4) are not. A node is not adjacent to itself.
         :return: nothing.
         """
         for node in self.mapping:
@@ -155,6 +155,29 @@ class Graph:
                 self.connect(node, south_node)
             if west_node is not None:
                 self.connect(node, west_node)
+
+    def connect_diagonal_nodes(self):
+        """
+        Connect all nodes geometrically that are one diagonal unit away from one another.
+
+        This method will not connect two nodes that are already connected to each other. Nodes are considered diagonal
+        by this method whenever the vector between them is (+/-1, +/-1). For example, nodes at positions (2, 3) and
+        (3, 4) are diagonal but nodes at (2, 3) and (3, 3) are not, nor or nodes at (2, 3) and (5, 6).
+        :return: nothing.
+        """
+        for node in self.mapping:
+            north_east_node = self.find_node_by_position(node.x + 1, node.y + 1)
+            south_east_node = self.find_node_by_position(node.x + 1, node.y - 1)
+            south_west_node = self.find_node_by_position(node.x - 1, node.y - 1)
+            north_west_node = self.find_node_by_position(node.x - 1, node.y + 1)
+            if north_east_node is not None:
+                self.connect(node, north_east_node)
+            if south_east_node is not None:
+                self.connect(node, south_east_node)
+            if south_west_node is not None:
+                self.connect(node, south_west_node)
+            if north_west_node is not None:
+                self.connect(node, north_west_node)
 
     def connect_all_to(self, center_node):
         """

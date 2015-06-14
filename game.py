@@ -165,7 +165,7 @@ class Game:
 
         :param x: x coordinate of position.
         :param y: y coordinate of position.
-        :return: True if these is a unit at the given position, False otherwise.
+        :return: True if there is a unit at the given position, False otherwise.
         """
         # TODO: Rename to destroy?
         for key in self.units:
