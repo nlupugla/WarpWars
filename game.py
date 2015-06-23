@@ -118,7 +118,7 @@ class Game:
         self.state_ID += 1
         return True
 
-    def place(self, unit, x, y):
+    def place(self, unit, x, y, deploy=False):
         """
         Place a unit at the specified destination.
 
@@ -127,6 +127,7 @@ class Game:
         :param unit: the unit to place.
         :param x: x coordinate of the destination.
         :param y: y coordinate of the destination.
+        :param deploy: When True, the placement is for a deploy, which means the unit has no starting position.
         :return: nothing.
         """
         movement = unit.moves
@@ -135,7 +136,8 @@ class Game:
             node.x += x - unit.x
             node.y += y - unit.y
         # update unit position
-        self.board[unit.x][unit.y] = EMPTY_TILE
+        if not deploy:
+            self.board[unit.x][unit.y] = EMPTY_TILE
         unit.x = x
         unit.y = y
         if self.board[x][y] == (not unit.color):
@@ -177,6 +179,31 @@ class Game:
                 return True
         return False
 
+    def deploy(self, unit_type, x, y):
+        """
+        Deploy a unit onto the board.
+
+        :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
+        :param x: x coordinate of deployment destination
+        :param y: y coordinate of deployment destination
+        :return: True if the deploy is legal, False otherwise.
+        """
+        legal = self.deploy_is_legal(unit_type, x, y)
+        if not legal:
+            return False
+        # decrement number of units of the type in the player's palette by one.
+        self.players[self.active_color].palette[unit_type] -= 1
+        # initialize unit
+        unit = CARD_DICTIONARY[unit_type].copy()
+        unit.color = self.active_color
+        self.n_units_deployed += 1
+        unit.ID = self.n_units_deployed
+        self.units[unit.ID] = unit
+        deploy = True
+        self.place(unit, x, y, deploy)
+        self.state_ID += 1
+        return True
+
     def deploy_is_legal(self, unit_type, x, y):
         """
         Return whether deploying a card to the specified destination is legal or not.
@@ -198,31 +225,6 @@ class Game:
         # The player must have enough cards in their palette of the card type.
         if self.players[self.active_color].palette[unit_type] < 1:
             return False
-        return True
-
-
-    def deploy(self, unit_type, x, y):
-        """
-        Deploy a unit onto the board.
-
-        :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
-        :param x: x coordinate of deployment destination
-        :param y: y coordinate of deployment destination
-        :return: True if the deploy is legal, False otherwise.
-        """
-        legal = self.deploy_is_legal(unit_type, x, y)
-        if not legal:
-            return False
-        # decrement number of units of the type in the player's palette by one.
-        self.players[self.active_color].palette[unit_type] -= 1
-        # initialize unit
-        unit = CARD_DICTIONARY[unit_type].copy()
-        unit.color = self.active_color
-        self.n_units_deployed += 1
-        unit.ID = self.n_units_deployed
-        self.units[unit.ID] = unit
-        self.place(unit, x, y)
-        self.state_ID += 1
         return True
 
     def state(self):

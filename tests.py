@@ -16,6 +16,28 @@ def test_game():
     return_game.deploy(WARPLING_TYPE, 6, 6)
     return return_game
 
+def make_game():
+    # return a game with a checkers style arrangement of warplings.
+    game = Game()
+    game.players = [Player(WHITE), Player(BLACK)]
+    game.players[0].palette[WARPLING_TYPE] = BOARD_LENGTH*BOARD_HEIGHT
+    game.active_color = game.players[0].color
+    for x in range(BOARD_LENGTH):
+        for y in range(START_ZONE_HEIGHT):
+            if (x % 2) == (y % 2):
+                game.deploy(WARPLING_TYPE, x, y)
+    game.players[1].palette[WARPLING_TYPE] = BOARD_LENGTH*BOARD_HEIGHT
+    game.active_color = game.players[1].color
+    for x in range(BOARD_LENGTH):
+        for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):
+            if x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
+                game.deploy(WARPLING_TYPE, x, y)
+    game.active_color = STARTING_PLAYER
+    return game
+
+
+
+
 class GameTest(unittest.TestCase):
 
     def test_initialization(self):
@@ -24,6 +46,12 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.board[6][6], BLACK_TILE)
         self.assertEqual(game.units[1].x, 5)
         self.assertEqual(game.units[2].x, 6)
+
+        game = make_game()
+        self.assertEqual(game.board[0][0], WHITE_TILE)
+        self.assertEqual(game.board[9][1], WHITE_TILE)
+        self.assertEqual(game.board[9][8], BLACK_TILE)
+        self.assertEqual(len(game.units), 30)
 
     def test_graph(self):
         my_graph = Graph()
