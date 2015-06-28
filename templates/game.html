@@ -16,8 +16,8 @@
 			<h3 id="player-color-indicator">You are {% if player_color == 0 %} White {% else %} Black {% endif %}</h3>
 			<div id="mana-box">
 				<h4>MANA:</h4>
-				<h5 id="white-mana-indicator">WHITE: 0</h6>
-				<h5 id="black-mana-indicator">BLACK: 0</h6>
+				<h5 id="player-mana-indicator">WHITE: 0</h6>
+				<h5 id="opponent-mana-indicator">BLACK: 0</h6>
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
 			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
@@ -50,8 +50,9 @@
 			// DOM elements for interface
 			var turnIndicator = document.getElementById("turn-indicator");
 			var turnNumberIndicator = document.getElementById("turn-number-indicator");
-			var whiteManaIndicator = document.getElementById("white-mana-indicator");
-			var blackManaIndicator = document.getElementById("black-mana-indicator");
+			var playerManaIndicator = document.getElementById("player-mana-indicator");
+			var opponentManaIndicator = document.getElementById("opponent-mana-indicator");
+			// this is gross and I apologize for my sins
 			var playerPaletteUnits = [document.getElementById("player-unit-zero"), document.getElementById("player-unit-one"), document.getElementById("player-unit-two"), document.getElementById("player-unit-three"), document.getElementById("player-unit-four")]
 			var opponentPaletteUnits = [document.getElementById("opponent-unit-zero"), document.getElementById("opponent-unit-one"), document.getElementById("opponent-unit-two"), document.getElementById("opponent-unit-three"), document.getElementById("opponent-unit-four")]
 			var playerPaletteButtons = [document.getElementById("player-button-zero"), document.getElementById("player-button-one"), document.getElementById("player-button-two"), document.getElementById("player-button-three"), document.getElementById("player-button-four")]
@@ -83,8 +84,8 @@
 			var currentTurn = PlayerColors.BLACK;
 			var currentTurnNumber = 1;
 			var board = new Array(WIDTH);
-			var whiteMana = 0;
-			var blackMana = 0;
+			var playerMana = 0;
+			var opponentMana = 0;
 			var playerPalette = new Array(5);
 			var opponentPalette = new Array(5);
 			
@@ -151,8 +152,8 @@
 					turnIndicator.innerHTML = "Turn: BLACK";
 				}
 				turnNumberIndicator.innerHTML = "Turn " + currentTurnNumber;
-				whiteManaIndicator.innerHTML = "WHITE: " + whiteMana;
-				blackManaIndicator.innerHTML = "BLACK: " + blackMana;
+				playerManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerMana;
+				opponentManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentMana;
 			}
 			
 			// end turn, handling all necessary cleanup
@@ -175,7 +176,7 @@
 				if(unitNumber < 0 || unitNumber > 4){
 					return;
 				}
-				if(playerPalette[unitNumber].cost > ){ // check against current player's mana
+				if(playerPalette[unitNumber].cost > 4){ // check against current player's mana
 					// TODO: finish sanity checks here, then set clickState to deployment click
 					// TODO: then paint all the warpling occupied spaces
 					// TODO: then in handleClick do the appropriate logic there for sending the get request
