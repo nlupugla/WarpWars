@@ -98,12 +98,12 @@
 			}
 			
 			// Constructor for a unit type in the palettes
-			function Unit(name, type, cost, current, total){
+			function Unit(name, type, cost, current, cap){
 				this.name = name;
 				this.type = type;
 				this.cost = cost;
 				this.current = current; // how many have been deployed
-				this.total = total; // how many can be deployed total
+				this.cap = cap; // how many can be deployed total
 			}
 			
 			// perform initial setup of the canvas
@@ -172,17 +172,38 @@
 			
 			// handle deploy button clicks
 			function deploy(unitNumber){
+				unit = playerPalette[unitNumber];
 				// check for shenanigans
 				if(unitNumber < 0 || unitNumber > 4){
 					return;
 				}
-				if(playerPalette[unitNumber].cost > 4){ // check against current player's mana
-					// TODO: finish sanity checks here, then set clickState to deployment click
-					// TODO: then paint all the warpling occupied spaces
-					// TODO: then in handleClick do the appropriate logic there for sending the get request
-					// TODO: funelling the URL in from outside, of course
-					// TODO: also add code in update processing to load and render the palette data
+				// you can only deploy on your own turn
+				if(currentTurn != PlayerColor){
+					return;
 				}
+				// check that the player has enough mana and that the unit isn't at its cap
+				if(unit.cost > playerMana || unit.current >= unit.cap){ 
+					return;
+				}
+				
+				clickState = ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT;
+				
+				// paint deployable spaces
+				for(var x = 0; x < WIDTH; x++){
+					for(var y = 0; y < HEIGHT; y++){
+						if(board[x][y].type == PieceTypes.WARPLING && board[x][y].color == currentPlayer){
+							drawSpace(x, y, "#0000ff");
+							drawPiece(x, y, board[x][y]);
+						}
+					}
+				}
+				
+				// TODO: finish sanity checks here, then set clickState to deployment click - done
+				// TODO: then paint all the warpling occupied spaces - done
+				// TODO: then in handleClick do the appropriate logic there for sending the get request
+				// TODO: funelling the URL in from outside, of course
+				// TODO: also add code in handleUpdate to load the palette data
+				// TODO: and make updateInterface render the palettes
 			}
 			
 			// handle clicks
