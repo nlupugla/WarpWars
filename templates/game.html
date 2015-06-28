@@ -62,6 +62,9 @@
 			var MAX = canvas.getAttribute('width')-5;
 			var STEP = 80;
 			var LINES = ((MAX-MIN)/STEP)+1;
+			var DEPLOYABLE_SPACE_COLOR = "#0000ff";
+			var MOVEABLE_SPACE_COLOR = "#00ff00";
+			var UNIT_SELECTION_COLOR = "#aaff00";
 			
 			// Board constants
 			var WIDTH = LINES-1;
@@ -192,7 +195,7 @@
 				for(var x = 0; x < WIDTH; x++){
 					for(var y = 0; y < HEIGHT; y++){
 						if(board[x][y].type == PieceTypes.WARPLING && board[x][y].color == currentPlayer){
-							drawSpace(x, y, "#0000ff");
+							drawSpace(x, y, DEPLOYABLE_SPACE_COLOR);
 							drawPiece(x, y, board[x][y]);
 						}
 					}
@@ -221,13 +224,13 @@
 						clickState = ClickStates.AWAITING_CLICK_FOR_MOVEMENT;
 						
 						// paint the selected space
-						drawSpace(x, y, "#aaff00");
+						drawSpace(x, y, UNIT_SELECTION_COLOR);
 						drawPiece(x, y, board[x][y]);
 						
 						// paint all spaces the piece can move to
 						moveableSpaces = board[x][y].moves;
 						for(var i = 0; i < moveableSpaces.length; i++){
-							drawSpace(moveableSpaces[i][0], moveableSpaces[i][1], "#00ff00");
+							drawSpace(moveableSpaces[i][0], moveableSpaces[i][1], MOVEABLE_SPACE_COLOR);
 							drawPiece(moveableSpaces[i][0], moveableSpaces[i][1], board[moveableSpaces[i][0]][moveableSpaces[i][1]]);
 						}
 					}
