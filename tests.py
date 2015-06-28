@@ -11,9 +11,9 @@ def test_game():
     return_game = Game()
     return_game.players = [Player(WHITE), Player(BLACK)]
     return_game.active_color = WHITE
-    return_game.deploy(WARPLING_TYPE, 5, 5)
+    return_game.deploy(WARPLING_TYPE, 5, 5, False)
     return_game.active_color = BLACK
-    return_game.deploy(WARPLING_TYPE, 6, 6)
+    return_game.deploy(WARPLING_TYPE, 6, 6, False)
     return return_game
 
 def make_game():
@@ -25,13 +25,13 @@ def make_game():
     for x in range(BOARD_LENGTH):
         for y in range(START_ZONE_HEIGHT):
             if (x % 2) == (y % 2):
-                game.deploy(WARPLING_TYPE, x, y)
+                game.deploy(WARPLING_TYPE, x, y, False)
     game.players[1].palette[WARPLING_TYPE] = BOARD_LENGTH*BOARD_HEIGHT
     game.active_color = game.players[1].color
     for x in range(BOARD_LENGTH):
         for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):
             if x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
-                game.deploy(WARPLING_TYPE, x, y)
+                game.deploy(WARPLING_TYPE, x, y, False)
     game.active_color = STARTING_PLAYER
     return game
 
@@ -96,15 +96,19 @@ class GameTest(unittest.TestCase):
     def test_movement(self):
         game = test_game()
         ID = game.state_ID
-        self.assertFalse(game.move(2, 6, 6)) # should be False because start location = end location
-        self.assertFalse(game.move(1, 6, 6)) # should be False because this move is out of range
+        game.active_color = BLACK
+        self.assertFalse(game.move(2, 6, 6))  # should be False because start location = end location
+        game.active_color = WHITE
+        self.assertFalse(game.move(1, 6, 6))  # should be False because this move is out of range
         self.assertEqual(ID, game.state_ID)
         self.assertEqual(game.board[5][5], WHITE_TILE)
         self.assertEqual(game.board[6][6], BLACK_TILE)
+        game.active_color = WHITE
         self.assertTrue(game.move(1, 5, 6))
         self.assertLess(ID, game.state_ID)
         ID = game.state_ID
         self.assertEqual(game.board[5][6], WHITE_TILE)
+        game.active_color = BLACK
         self.assertTrue(game.move(2, 5, 6))
         self.assertLess(ID, game.state_ID)
         self.assertEqual(game.board[5][6], BLACK_TILE)

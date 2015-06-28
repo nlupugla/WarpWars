@@ -6,6 +6,7 @@ from graph import Graph
 
 warpling = Unit()
 warpling.type = WARPLING_TYPE
+warpling.cost = 0
 warpling.moves = Graph()
 warpling.moves.add_new_node(0, 0)
 warpling.moves.add_new_node(1, 0)
@@ -16,6 +17,7 @@ warpling.moves.connect_adjacent_nodes()
 
 knight = Unit()
 knight.type = KNIGHT_TYPE
+knight.cost = 3
 knight.moves = Graph()
 knight.moves.add_new_node(0, 0)
 knight.moves.add_new_node(1, 2)
@@ -30,6 +32,7 @@ knight.moves.connect_all_to(knight.moves.find_node_by_position(0, 0))
 
 bishop = Unit()
 bishop.type = BISHOP_TYPE
+bishop.cost = 3
 bishop.moves = Graph()
 for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
     for y in range(-BOARD_HEIGHT, BOARD_HEIGHT + 1):
@@ -39,6 +42,7 @@ bishop.moves.connect_diagonal_nodes()
 
 rook = Unit()
 rook.type = ROOK_TYPE
+rook.cost = 5
 rook.moves = Graph()
 for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
     for y in range(-BOARD_HEIGHT, BOARD_HEIGHT + 1):
@@ -48,6 +52,7 @@ rook.moves.connect_adjacent_nodes()
 
 queen = Unit()
 queen.moves = QUEEN_TYPE
+queen.cost = 9
 queen.moves = Graph()
 for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
     for y in range(-BOARD_HEIGHT, BOARD_HEIGHT + 1):
@@ -62,6 +67,7 @@ queen.moves.connect_adjacent_nodes()
 
 king = Unit()
 king.moves = KING_TYPE
+king.cost = 0
 king.moves = Graph()
 for x in range(-1, 2):
     for y in range (-1, 2):

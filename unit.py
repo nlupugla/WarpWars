@@ -19,6 +19,7 @@ class Unit:
         self.name = ""  # name of the unit
         self.type = 0  # number specifying unit's type, eg: WARPLING_TYPE
         self.color = WHITE  # number specifying to which player the unit belongs
+        self.cost = 0 # amount of warp required to play the unit
         self.x = 0  # x position
         self.y = 0  # y position
         self.moves = Graph()  # graph specifying the movement of the unit
@@ -35,6 +36,7 @@ class Unit:
         unit.name = self.name
         unit.type = self.type
         unit.color = self.color
+        unit.cost = self.cost
         unit.x = self.x
         unit.y = self.y
         unit.moves = self.moves.copy()

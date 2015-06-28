@@ -63,9 +63,14 @@ class Game:
         :return: True if the move is legal, False otherwise.
         """
         # TODO: Do we want more specific return values or error messages?
+        # The unit must belong to the active player.
+        if self.units[unit_ID].color != self.active_color:
+            return False
         # The destination must not be off the board.
-        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
-        if x < 0 or y < 0: return False
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT:
+            return False
+        if x < 0 or y < 0:
+            return False
         # Grab the unit by ID.
         unit = self.units[unit_ID]
         movement = unit.moves
@@ -179,16 +184,18 @@ class Game:
                 return True
         return False
 
-    def deploy(self, unit_type, x, y):
+    def deploy(self, unit_type, x, y, normal=True):
         """
         Deploy a unit onto the board.
 
         :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
-        :param x: x coordinate of deployment destination
-        :param y: y coordinate of deployment destination
+        :param color: the color of the
+        :param x: x coordinate of deployment destination.
+        :param y: y coordinate of deployment destination.
+        :param normal: When True, a unit must be deployed onto a friendly warpling.
         :return: True if the deploy is legal, False otherwise.
         """
-        legal = self.deploy_is_legal(unit_type, x, y)
+        legal = self.deploy_is_legal(unit_type, x, y, normal)
         if not legal:
             return False
         # decrement number of units of the type in the player's palette by one.
@@ -204,28 +211,65 @@ class Game:
         self.state_ID += 1
         return True
 
-    def deploy_is_legal(self, unit_type, x, y):
+    def deploy_is_legal(self, unit_type, x, y, normal=True):
         """
         Return whether deploying a card to the specified destination is legal or not.
 
         :param unit_type: number specifying the type of the unit to be deployed, eg: WARPLING_TYPE.
         :param x: x coordinate of deployment destination.
         :param y: y coordinate of deployment destination.
+        :param normal: When True, a unit must be deployed onto a friendly warpling.
         :return: True if the deploy is legal, False otherwise.
         """
         # TODO: Do we want more specific return values or error messages?
         # TODO: Right now we're assuming only the active player can deploy, should this always be true?
+        # TODO: Check that only the active player is deploying.
         # The destination must not be off the board.
-        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT: return False
-        if x < 0 or y < 0: return False
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT:
+            return False
+        if x < 0 or y < 0:
+            return False
+        player = self.players[self.active_color]
+        # If the deploy is normal, the destination must be a friendly warpling.
+        if normal:
+            unit = self.get_unit_by_position(x, y)
+            if unit is None or unit.type != WARPLING_TYPE or unit.color != player.color:
+                return False
+        """
         # The destination must be an empty tile.
         if self.board[x][y] != EMPTY_TILE:
             return False
-        # if card.cost > player.warp: return False
+        """
+        # The player must have enough warp.
+        if CARD_DICTIONARY[unit_type].cost > player.warp:
+            return False
         # The player must have enough cards in their palette of the card type.
-        if self.players[self.active_color].palette[unit_type] < 1:
+        if player.palette[unit_type] < 1:
             return False
         return True
+
+    def get_unit_by_position(self, x, y):
+        """
+        Return the unit in the game at the specified location.
+
+        :param x: x coordinate.
+        :param y: y coordinate.
+        :return: the specified unit if one exists at the location, None otherwise.
+        """
+        for unit in self.units:
+            if (unit.x, unit.y) == (x, y):
+                return unit
+
+    def get_unit_by_ID(self, ID):
+        """
+        Return the unit in the game with the specified ID.
+
+        :param ID: unique numerical identifier of the unit.
+        :return: the specified unit if one exists at the location, None otherwise.
+        """
+        for unit in self.units:
+            if unit.ID == ID:
+                return unit
 
     def state(self):
         """
