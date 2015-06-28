@@ -18,6 +18,7 @@ STATUS_SUCCESS = 'success'
 STATUS_ERROR = 'error'
 
 ERROR_GAME_DNE = 'game does not exist'
+ERROR_MASQUERADE = 'cannot perform actions as opponent'
 SUCCESS_DEFAULT = 'success'
 
 app = Flask(__name__)
@@ -109,7 +110,7 @@ def game_update_move(game_id, unit_id, x, y):
     """
     Move a given unit in the given game to the given position.
 
-    The backend checks whether the move is valid and then returns the new game state. This state, or an error message if the move was illegal, is then returned.
+    The backend checks whether the move is valid and then updates the game state. This state, or an error message if the move was illegal, is then returned.
 
     An error will also be returned if the indicated game does not exist.
 
@@ -120,10 +121,29 @@ def game_update_move(game_id, unit_id, x, y):
     :return: whether or not the update succeeded, as JSON
     """
     if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
-    # TODO: actually send the data to the backend and verify it before doing a legit state update
-    # call Game.move
     games[game_id].move(unit_id, x, y)
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT) # maybe return game_status(game_id), or just wait for autoupdate?
+
+@app.route('/update/game/<int:game_id>/color/<int:color>/deploy/<int:unit_type>/to/<int:x>/<int:y>')
+def game_update_deploy(game_id, color, unit_type, x, y):
+    """
+    Deploy a unit of the given type to the given position.
+
+    The backend checks whether the deployment is valid and then updates the game state. This state, or an error message if the deployment was illegal, is then returned.
+
+    An error will also be returned if the indicated game does not exist or the player ordered a deployment for their opponent.
+
+    :param game_id: the id of the game containing the unit to be moved
+    :param color: the color of the player deploying the unit ie the of the unit to be deployed
+    :param unit_type: the type of the unit to be deployed
+    :param x: the x-coordinate to deploy the unit to
+    :param y: the y-coordinate to deploy the unit to
+    :return: whether or not the deployment succeeded, as JSON
+    """
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    if color != session['color-' + str(game_id)]: return format_response(STATUS_ERROR, ERROR_MASQUERADE)
+    games[game_id].deploy(unit_type, color, x, y)
+    return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/update/game/<int:game_id>/end/turn')
 def game_update_end_turn(game_id):
@@ -181,6 +201,10 @@ def format_response(status, message):
     :return: a JSON object containing the error message
     """
     return dumps({'status': status, 'message': message})
+
+# TODO: also send the color of the unit to be deployed/moved in the URL and check that against the player in the cookie
+# TODO: and the active player/unit color on the backend
+# TODO: to prevent move spoofing; this also for deploy and end turn
 
 if __name__ == '__main__':
     app.run(debug = True)

@@ -79,6 +79,7 @@
 			var clickState = ClickStates.NO_PREVIOUS_CLICK;
 			var firstX = -1;
 			var firstY = -1;
+			var unitTypeToDeploy = -1;
 			
 			// Game state tracking
 			var firstUpdate = true;
@@ -91,6 +92,7 @@
 			var opponentMana = 0;
 			var playerPalette = new Array(5);
 			var opponentPalette = new Array(5);
+			var deployedThisTurn = false;
 			
 			// Constructor for a Piece
 			function Piece(type, color, id, moves){
@@ -177,19 +179,21 @@
 			function deploy(unitNumber){
 				unit = playerPalette[unitNumber];
 				// check for shenanigans
-				if(unitNumber < 0 || unitNumber > 4){
+				if((unitNumber < 0) || (unitNumber > 4)){
 					return;
 				}
-				// you can only deploy on your own turn
-				if(currentTurn != PlayerColor){
+				// you can only deploy on your own turn and if you haven't yet deployed
+				if((currentTurn != PlayerColor) || (!deployedThisTurn)){
 					return;
 				}
 				// check that the player has enough mana and that the unit isn't at its cap
-				if(unit.cost > playerMana || unit.current >= unit.cap){ 
+				if((unit.cost > playerMana) || (unit.current >= unit.cap)){ 
 					return;
 				}
 				
+				// update state
 				clickState = ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT;
+				unitTypeToDeploy = unit.type;
 				
 				// paint deployable spaces
 				for(var x = 0; x < WIDTH; x++){
@@ -203,10 +207,10 @@
 				
 				// TODO: finish sanity checks here, then set clickState to deployment click - done
 				// TODO: then paint all the warpling occupied spaces - done
-				// TODO: then in handleClick do the appropriate logic there for sending the get request
-				// TODO: funelling the URL in from outside, of course
+				// TODO: then in handleClick do the appropriate logic there for sending the get request - done
+				// TODO: funelling the URL in from outside, of course - done
 				// TODO: also add code in handleUpdate to load the palette data
-				// TODO: and make updateInterface render the palettes
+				// TODO: and make updateInterface render the palettes (disable buttons based on cap, mana, and deployedThisTurn)
 			}
 			
 			// handle clicks
@@ -252,6 +256,23 @@
 					clickState = ClickStates.NO_PREVIOUS_CLICK;
 					firstX = 0;
 					firstY = 0;
+					redraw();
+				} else if(clickState == ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT){
+					// check if target space is deployable
+					if((board[x][y].type == PieceTypes.WARPLING_TYPE) && (board[x][y].color == currentTurn)){
+						// we'll not bother faking this and instead just send it to the backend
+						
+						// TODO: actually check the response code; see TODO above on movement
+						makeGetRequest('/update/game/' + {{ game_id }} + '/color/' + {{ player_color }} + '/deploy/' + unitTypeToDeploy + '/to/' + x + '/' + y, function(){});
+						
+						// set that this turn's deploy has been done and update interface
+						deployedThisTurn = true;
+						updateInterface();
+					}
+					
+					// regardless of legality of the deploy, reset state and redraw
+					clickState = ClickState.NO_PREVIOUS_CLICK;
+					unitTypeToDeploy = -1;
 					redraw();
 				}
 			}
