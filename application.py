@@ -123,7 +123,6 @@ def game_update_move(game_id, unit_id, x, y):
     # TODO: actually send the data to the backend and verify it before doing a legit state update
     # call Game.move
     games[game_id].move(unit_id, x, y)
-    # TODO: game_states[game_id] += 1
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT) # maybe return game_status(game_id), or just wait for autoupdate?
 
 @app.route('/update/game/<int:game_id>/end/turn')
