@@ -209,13 +209,14 @@
 					return;
 				}
 				// you can only deploy on your own turn and if you haven't yet deployed
-				if((currentTurn != PlayerColor) || (!deployedThisTurn)){
+				if((currentTurn != playerColor) || (deployedThisTurn)){
 					return;
 				}
 				// check that the player has enough mana and that the unit isn't at its cap
 				if((unit.cost > playerMana) || (unit.current >= unit.cap)){ 
 					return;
 				}
+				alert('hella');
 				
 				// update state
 				clickState = ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT;
@@ -224,7 +225,7 @@
 				// paint deployable spaces
 				for(var x = 0; x < WIDTH; x++){
 					for(var y = 0; y < HEIGHT; y++){
-						if(board[x][y].type == PieceTypes.WARPLING && board[x][y].color == currentPlayer){
+						if((board[x][y].type == PieceTypes.WARPLING) && (board[x][y].color == playerColor)){
 							drawSpace(x, y, DEPLOYABLE_SPACE_COLOR);
 							drawPiece(x, y, board[x][y]);
 						}
@@ -297,7 +298,7 @@
 					}
 					
 					// regardless of legality of the deploy, reset state and redraw
-					clickState = ClickState.NO_PREVIOUS_CLICK;
+					clickState = ClickStates.NO_PREVIOUS_CLICK;
 					unitTypeToDeploy = -1;
 					redraw();
 				}
@@ -363,7 +364,7 @@
 					name = unit['name'];
 					type = unit['type'];
 					cost = unit['cost'];
-					current = unit['starting_amount'] - unit['current_amount'];
+					current = (unit['starting_amount'] - unit['current_amount']);
 					cap = unit['starting_amount'];
 					playerPalette[i] = new Unit(name, type, cost, current, cap);
 				}
