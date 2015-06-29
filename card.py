@@ -1,6 +1,13 @@
 from card_dictionary import CARD_DICTIONARY
 
 class Card:
+    """
+    Cards live in player palettes and help determine which units the player can deploy.
+
+    Each card is closely associated with a unit type, so has the name, type, and cost of that unit. In addition, a Card
+    has a certain starting_amount, which is the total number of units of said type the player can deploy, and a
+    current_amount, which decreases as the player deploys and is the number the player currently has left to deploy.
+    """
 
     def __init__(self, unit_type, amount):
         unit = CARD_DICTIONARY[unit_type]
