@@ -37,6 +37,7 @@ class Game:
         """
         self.turn += 1
         self.active_color = int(not self.active_color)
+        self.players[self.active_color].warp = self.turn  # Hearthstone style resources
         self.state_ID += 1
 
     def next_phase(self):
@@ -144,8 +145,12 @@ class Game:
         # update graph position
         movement = unit.moves
         for node in movement.mapping:
-            node.x += x - unit.x
-            node.y += y - unit.y
+            if deploy:
+                node.x += x
+                node.y += y
+            else:
+                node.x += x - unit.x
+                node.y += y - unit.y
         # update unit position
         unit.x = x
         unit.y = y
