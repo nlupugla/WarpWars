@@ -11,7 +11,7 @@ def test_game():
     return_game = Game()
     return_game.players = [Player(WHITE), Player(BLACK)]
     for player in return_game.players:
-        player.palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
+        player.add_card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     return_game.active_color = WHITE
     return_game.deploy(WARPLING_TYPE, WHITE, 5, 5, False)
     return_game.active_color = BLACK
@@ -22,13 +22,14 @@ def make_game():
     # return a game with a checkers style arrangement of warplings.
     game = Game()
     game.players = [Player(WHITE), Player(BLACK)]
-    game.players[0].palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
+    for player in game.players:
+        player.add_card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
+        player.add_card(KNIGHT_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     game.active_color = game.players[0].color
     for x in range(BOARD_LENGTH):
         for y in range(START_ZONE_HEIGHT):
             if (x % 2) == (y % 2):
                 game.deploy(WARPLING_TYPE, game.players[0].color, x, y, False)
-    game.players[1].palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     game.active_color = game.players[1].color
     for x in range(BOARD_LENGTH):
         for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):

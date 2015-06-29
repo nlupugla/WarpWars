@@ -22,7 +22,7 @@ class Card:
             'name': self.name,
             'type': self.type,
             'cost': self.cost,
-            'current_amount': self.current_amount,  # TODO: change
+            'current_amount': self.current_amount,
             'starting_amount': self.starting_amount
         }
         return dictionary

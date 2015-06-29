@@ -1,3 +1,5 @@
+from card import Card
+
 class Player:
     """
     Players exist in the game and contain information about deploying units.
@@ -8,6 +10,9 @@ class Player:
         self.color = color  # WHITE or BLACK
         self.warp = 0  # amount of warp available to the player
         self.palette = {}  # key: unit_type -> item: card
+
+    def add_card(self, unit_type, amount):
+        self.palette[unit_type] = Card(unit_type, amount)
 
     def generate_dict(self):
         """
