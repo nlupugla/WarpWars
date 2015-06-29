@@ -21,10 +21,14 @@ ERROR_GAME_DNE = 'game does not exist'
 ERROR_MASQUERADE = 'cannot perform actions as opponent'
 SUCCESS_DEFAULT = 'success'
 
+DEBUG_SECRET_KEY = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
+
+DEBUG = True # change this when deploying, obviously
+
 app = Flask(__name__)
 
 # secret key for session storage
-app.secret_key = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
+app.secret_key = DEBUG_SECRET_KEY
 
 # master list of all currently running games; list of their states
 games = {}
@@ -97,7 +101,7 @@ def game(game_id):
     # if the given game doesn't exist, redirect to '/'
     if game_id not in games: return redirect(url_for('root'))
 
-    drawing_file = url_for('static', filename = 'drawing.js')
+    drawing_file = generate_static_url('drawing.js')
     changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove last_state so client can fill it in
     state = url_for('game_status', game_id = game_id)
     end_turn = url_for('game_update_end_turn', game_id = game_id)
@@ -192,6 +196,8 @@ def page_not_found(error):
     """
     return render_template(ERROR_404_TEMPLATE)
 
+# utility functions
+
 def format_response(status, message):
     """
     Format a status and message as a JSON object suitable for returning to the browser.
@@ -202,9 +208,25 @@ def format_response(status, message):
     """
     return dumps({'status': status, 'message': message})
 
+def generate_static_url(file_name):
+    """
+    Generate URLs for static files according to the relevant static file root.
+
+    :param file_name: the name or path of the file to generate a path to
+    :return: a properly formatted URL to the given file
+    """
+    if DEBUG:
+        return url_for('static', filename = file_name)
+    else:
+        return file_name # the front-end proxy will handle it for us
+
 # TODO: also send the color of the unit to be deployed/moved in the URL and check that against the player in the cookie
 # TODO: and the active player/unit color on the backend
 # TODO: to prevent move spoofing; this also for deploy and end turn
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    if not DEBUG and app.secret_key == DEBUG_SECRET_KEY:
+        print 'ERROR: default secret key cannot be used in production!'
+        print 'Exiting!'
+        raise SystemExit
+    app.run(debug = DEBUG)
