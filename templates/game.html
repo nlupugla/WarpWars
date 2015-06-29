@@ -166,18 +166,8 @@
 				}
 			}
 			
-			// end turn, handling all necessary cleanup
+			// end turn
 			function endTurn(){
-				// flip the turn on the frontend
-				if(currentTurn == PlayerColors.WHITE){
-					currentTurn = PlayerColors.BLACK;
-				} else {
-					currentTurn = PlayerColors.WHITE;
-				}
-				currentTurnNumber++;
-				updateInterface();
-				
-				// and the backend
 				makeGetRequest('{{ end_turn }}', function(){});
 			}
 			
