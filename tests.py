@@ -1,7 +1,7 @@
 import unittest
 
 from game import Game
-from unit import Unit
+from card import Card
 from player import Player
 from graph import Graph
 from constants import *
@@ -10,28 +10,30 @@ from card_dictionary import CARD_DICTIONARY
 def test_game():
     return_game = Game()
     return_game.players = [Player(WHITE), Player(BLACK)]
+    for player in return_game.players:
+        player.palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     return_game.active_color = WHITE
-    return_game.deploy(WARPLING_TYPE, 5, 5, False)
+    return_game.deploy(WARPLING_TYPE, WHITE, 5, 5, False)
     return_game.active_color = BLACK
-    return_game.deploy(WARPLING_TYPE, 6, 6, False)
+    return_game.deploy(WARPLING_TYPE, BLACK, 6, 6, False)
     return return_game
 
 def make_game():
     # return a game with a checkers style arrangement of warplings.
     game = Game()
     game.players = [Player(WHITE), Player(BLACK)]
-    game.players[0].palette[WARPLING_TYPE] = BOARD_LENGTH*BOARD_HEIGHT
+    game.players[0].palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     game.active_color = game.players[0].color
     for x in range(BOARD_LENGTH):
         for y in range(START_ZONE_HEIGHT):
             if (x % 2) == (y % 2):
-                game.deploy(WARPLING_TYPE, x, y, False)
-    game.players[1].palette[WARPLING_TYPE] = BOARD_LENGTH*BOARD_HEIGHT
+                game.deploy(WARPLING_TYPE, game.players[0].color, x, y, False)
+    game.players[1].palette[WARPLING_TYPE] = Card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
     game.active_color = game.players[1].color
     for x in range(BOARD_LENGTH):
         for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):
             if x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
-                game.deploy(WARPLING_TYPE, x, y, False)
+                game.deploy(WARPLING_TYPE, game.players[1].color, x, y, False)
     game.active_color = STARTING_PLAYER
     return game
 
@@ -112,6 +114,7 @@ class GameTest(unittest.TestCase):
         self.assertTrue(game.move(2, 5, 6))
         self.assertLess(ID, game.state_ID)
         self.assertEqual(game.board[5][6], BLACK_TILE)
+        print game.state()
 
 if __name__ == '__main__':
     unittest.main()

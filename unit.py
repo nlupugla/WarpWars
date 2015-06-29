@@ -57,6 +57,7 @@ class Unit:
             'name': self.name,
             'type': self.type,
             'color': self.color,
+            'cost': self.cost,
             'x': self.x,
             'y': self.y,
             'abilities': abilities,
