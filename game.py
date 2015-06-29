@@ -216,7 +216,7 @@ class Game:
             return False
         """
         # The player must have enough warp.
-        if CARD_DICTIONARY[unit_type].cost > player.warp:
+        if player.palette[unit_type].cost > player.warp:
             return False
         # The player must have enough cards in their palette of the card type.
         if player.palette[unit_type].current_amount < 1:
@@ -237,8 +237,11 @@ class Game:
         legal = self.deploy_is_legal(unit_type, color, x, y, normal)
         if not legal:
             return False
-        # decrement number of units of the type in the player's palette by one.
-        self.players[self.active_color].palette[unit_type].current_amount -= 1
+        player = self.players[self.active_color]
+        # decrease the player's warp by the cost of the unit.
+        player.warp -= player.palette[unit_type].cost
+        # decrement number of units of the type in the player's palette.
+        player.palette[unit_type].current_amount -= 1
         # initialize unit
         unit = CARD_DICTIONARY[unit_type].copy()
         unit.color = self.active_color
