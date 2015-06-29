@@ -22,6 +22,7 @@
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
 			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
 			<div id="player-unit-palette">
+				Your Palette:
 				<div id="player-unit-zero"></div>
 				<button id="player-button-zero" onclick="deploy(0)">Deploy!</button>
 				<div id="player-unit-one"></div>
@@ -34,6 +35,7 @@
 				<button id="player-button-four" onclick="deploy(4)">Deploy!</button>
 			</div>
 			<div id="opponent-unit-palette">
+				Opponent's Palette:
 				<div id="opponent-unit-zero"></div>
 				<div id="opponent-unit-one"></div>
 				<div id="opponent-unit-two"></div>
@@ -182,7 +184,7 @@
 						opponentPaletteUnits[i].style.display = 'none';
 					} else {
 						opponentPaletteUnits[i].style.display = '';
-						opponentPaletteUnits.innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
+						opponentPaletteUnits[i].innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
 					}
 				}
 			}
@@ -195,19 +197,20 @@
 				} else {
 					currentTurn = PlayerColors.WHITE;
 				}
-				// and the backend
-				makeGetRequest('{{ end_turn }}', function(){}) // change this to callback to updateState, maybe?
 				currentTurnNumber++;
 				updateInterface();
+				
+				// and the backend
+				makeGetRequest('{{ end_turn }}', function(){});
 			}
 			
 			// handle deploy button clicks
 			function deploy(unitNumber){
-				unit = playerPalette[unitNumber];
 				// check for shenanigans
 				if((unitNumber < 0) || (unitNumber > 4)){
 					return;
 				}
+				unit = playerPalette[unitNumber];
 				// you can only deploy on your own turn and if you haven't yet deployed
 				if((currentTurn != playerColor) || (deployedThisTurn)){
 					return;
@@ -216,7 +219,6 @@
 				if((unit.cost > playerMana) || (unit.current >= unit.cap)){ 
 					return;
 				}
-				alert('hella');
 				
 				// update state
 				clickState = ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT;
@@ -231,13 +233,6 @@
 						}
 					}
 				}
-				
-				// TODO: finish sanity checks here, then set clickState to deployment click - done
-				// TODO: then paint all the warpling occupied spaces - done
-				// TODO: then in handleClick do the appropriate logic there for sending the get request - done
-				// TODO: funelling the URL in from outside, of course - done
-				// TODO: also add code in handleUpdate to load the palette data - done
-				// TODO: and make updateInterface render the palettes (disable buttons based on cap, mana, and deployedThisTurn)
 			}
 			
 			// handle clicks
@@ -279,6 +274,7 @@
 						// flip the turn
 						endTurn();
 					}
+					
 					// regardless of legality of the move, reset state and redraw
 					clickState = ClickStates.NO_PREVIOUS_CLICK;
 					firstX = 0;
@@ -286,7 +282,7 @@
 					redraw();
 				} else if(clickState == ClickStates.AWAITING_CLICK_FOR_DEPLOYMENT){
 					// check if target space is deployable
-					if((board[x][y].type == PieceTypes.WARPLING_TYPE) && (board[x][y].color == currentTurn)){
+					if((board[x][y].type == PieceTypes.WARPLING) && (board[x][y].color == currentTurn)){
 						// we'll not bother faking this and instead just send it to the backend
 						
 						// TODO: actually check the response code; see TODO above on movement
@@ -334,6 +330,11 @@
 					id = unit['ID'];
 					moves = unit['legal_moves'] // assuming legal_moves is a list of ordered pairs eg [[2, 3], [3, 4], ...]
 					board[unit['x']][unit['y']] = new Piece(type, color, id, moves);
+				}
+				
+				// reset deployment, if it's a new turn
+				if(currentTurnNumber < new_state['turn']){
+					deployedThisTurn = false;
 				}
 				
 				// set the current turn and turn number
