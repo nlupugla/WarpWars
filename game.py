@@ -37,7 +37,7 @@ class Game:
         """
         self.turn += 1
         self.active_color = int(not self.active_color)
-        self.players[self.active_color].warp = self.turn  # Hearthstone style resources
+        self.players[self.active_color].warp = (self.turn + self.turn % 2)/2  # Hearthstone style resources
         self.state_ID += 1
 
     def next_phase(self):

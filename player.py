@@ -8,7 +8,7 @@ class Player:
     """
     def __init__(self, color):
         self.color = color  # WHITE or BLACK
-        self.warp = 0  # amount of warp available to the player
+        self.warp = 1  # amount of warp available to the player
         self.palette = {}  # key: unit_type -> item: card
 
     def add_card(self, unit_type, amount):

@@ -16,6 +16,7 @@ def test_game():
     return_game.deploy(WARPLING_TYPE, WHITE, 5, 5, False)
     return_game.active_color = BLACK
     return_game.deploy(WARPLING_TYPE, BLACK, 6, 6, False)
+    return_game.turn = 1
     return return_game
 
 def make_game():
@@ -23,19 +24,28 @@ def make_game():
     game = Game()
     game.players = [Player(WHITE), Player(BLACK)]
     for player in game.players:
-        player.add_card(WARPLING_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
-        player.add_card(KNIGHT_TYPE, BOARD_LENGTH*BOARD_HEIGHT)
+        player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT/2)
+        player.add_card(KNIGHT_TYPE, 7)
+        player.add_card(BISHOP_TYPE, 7)
+        player.add_card(ROOK_TYPE, 5)
+        player.add_card(QUEEN_TYPE, 1)
+        player.add_card(KING_TYPE, 1)
     game.active_color = game.players[0].color
     for x in range(BOARD_LENGTH):
         for y in range(START_ZONE_HEIGHT):
-            if (x % 2) == (y % 2):
+            if (x, y) == (BOARD_LENGTH/2, 0):
+                game.deploy(KING_TYPE, game.active_color, x, y, False)
+            elif (x % 2) == (y % 2):
                 game.deploy(WARPLING_TYPE, game.players[0].color, x, y, False)
     game.active_color = game.players[1].color
     for x in range(BOARD_LENGTH):
         for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):
-            if x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
+            if (x, y) == (BOARD_LENGTH/2, BOARD_HEIGHT - 1):
+                game.deploy(KING_TYPE, game.active_color, x, y, False)
+            elif x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
                 game.deploy(WARPLING_TYPE, game.players[1].color, x, y, False)
     game.active_color = STARTING_PLAYER
+    game.turn = 1
     return game
 
 
@@ -54,7 +64,7 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.board[0][0], WHITE_TILE)
         self.assertEqual(game.board[9][1], WHITE_TILE)
         self.assertEqual(game.board[9][8], BLACK_TILE)
-        self.assertEqual(len(game.units), 30)
+        self.assertEqual(len(game.units), 32)
 
     def test_graph(self):
         my_graph = Graph()
