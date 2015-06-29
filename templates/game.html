@@ -176,7 +176,7 @@
 						playerPaletteButtons[i].style.display = '';
 						playerPaletteUnits[i].innerHTML = playerPalette[i].name + ' - ' + playerPalette[i].cost + ' Warp - (' + playerPalette[i].current + '/' + playerPalette[i].cap + ')';
 						playerPaletteButtons[i].disabled = false;
-						if((playerPalette[i].cost > playerMana) || (playerPalette[i].current == playerPalette[i].cap)){
+						if((deployedThisTurn) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == playerPalette[i].cap)){
 							playerPaletteButtons[i].disabled = true;
 						}
 					}
