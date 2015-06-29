@@ -117,9 +117,6 @@
 			// perform initial setup of the canvas
 			function setup(){
 				makeGetRequest('{{ state }}', updateState);
-				// createBoard();
-				// placeStartingWarplings();
-				// draw();
 			}
 			
 			// create and fill the board with empty spaces
@@ -131,26 +128,6 @@
 					}
 				}
 			}
-			
-			// place a starting set of warplings for both players
-			/*function placeStartingWarplings(){
-				for(var i = 0; i < WIDTH; i++){
-					if(i % 2 == 0){
-						board[i][0] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4);
-						board[i][2] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4+1);
-						board[i][HEIGHT - 3] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+2);
-						board[i][HEIGHT - 1] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+3);
-					} else {
-						board[i][1] = new Piece(PieceTypes.WARPLING, PieceColors.BLACK, i*4);
-						board[i][HEIGHT - 2] = new Piece(PieceTypes.WARPLING, PieceColors.WHITE, i*4+1);
-					}
-				}
-				board[4][4] = new Piece(PieceTypes.KNIGHT, PieceColors.BLACK, 40);
-				board[4][5] = new Piece(PieceTypes.ROOK, PieceColors.BLACK, 41);
-				board[4][6] = new Piece(PieceTypes.BISHOP, PieceColors.BLACK, 42);
-				board[4][7] = new Piece(PieceTypes.QUEEN, PieceColors.BLACK, 43);
-				board[5][4] = new Piece(PieceTypes.KING, PieceColors.BLACK, 44);
-			}*/
 			
 			// fill all user-facing interface elements
 			function updateInterface(){
@@ -189,18 +166,8 @@
 				}
 			}
 			
-			// end turn, handling all necessary cleanup
+			// end turn
 			function endTurn(){
-				// flip the turn on the frontend
-				if(currentTurn == PlayerColors.WHITE){
-					currentTurn = PlayerColors.BLACK;
-				} else {
-					currentTurn = PlayerColors.WHITE;
-				}
-				currentTurnNumber++;
-				updateInterface();
-				
-				// and the backend
 				makeGetRequest('{{ end_turn }}', function(){});
 			}
 			
