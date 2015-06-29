@@ -135,19 +135,20 @@ class Game:
         :param deploy: When True, the placement is for a deploy, which means the unit has no starting position.
         :return: nothing.
         """
-        movement = unit.moves
+        # take any piece at the destination
+        self.take(x, y)
+        # update board
+        if not deploy:
+            self.board[unit.x][unit.y] = EMPTY_TILE
+        self.board[x][y] = unit.color
         # update graph position
+        movement = unit.moves
         for node in movement.mapping:
             node.x += x - unit.x
             node.y += y - unit.y
         # update unit position
-        if not deploy:
-            self.board[unit.x][unit.y] = EMPTY_TILE
         unit.x = x
         unit.y = y
-        if self.board[x][y] == (not unit.color):
-            self.take(x, y)
-        self.board[x][y] = unit.color
         self.update_movements()
         self.state_ID += 1
 
@@ -261,7 +262,8 @@ class Game:
         :param y: y coordinate.
         :return: the specified unit if one exists at the location, None otherwise.
         """
-        for unit in self.units:
+        for unit_ID in self.units:
+            unit = self.units[unit_ID]
             if (unit.x, unit.y) == (x, y):
                 return unit
 

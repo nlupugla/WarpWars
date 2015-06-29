@@ -114,7 +114,6 @@ class GameTest(unittest.TestCase):
         self.assertTrue(game.move(2, 5, 6))
         self.assertLess(ID, game.state_ID)
         self.assertEqual(game.board[5][6], BLACK_TILE)
-        print game.state()
 
 if __name__ == '__main__':
     unittest.main()
