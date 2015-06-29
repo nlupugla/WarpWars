@@ -53,9 +53,9 @@
 			var playerManaIndicator = document.getElementById("player-mana-indicator");
 			var opponentManaIndicator = document.getElementById("opponent-mana-indicator");
 			// this is gross and I apologize for my sins
-			var playerPaletteUnits = [document.getElementById("player-unit-zero"), document.getElementById("player-unit-one"), document.getElementById("player-unit-two"), document.getElementById("player-unit-three"), document.getElementById("player-unit-four")]
-			var opponentPaletteUnits = [document.getElementById("opponent-unit-zero"), document.getElementById("opponent-unit-one"), document.getElementById("opponent-unit-two"), document.getElementById("opponent-unit-three"), document.getElementById("opponent-unit-four")]
-			var playerPaletteButtons = [document.getElementById("player-button-zero"), document.getElementById("player-button-one"), document.getElementById("player-button-two"), document.getElementById("player-button-three"), document.getElementById("player-button-four")]
+			var playerPaletteUnits = [document.getElementById("player-unit-zero"), document.getElementById("player-unit-one"), document.getElementById("player-unit-two"), document.getElementById("player-unit-three"), document.getElementById("player-unit-four")];
+			var opponentPaletteUnits = [document.getElementById("opponent-unit-zero"), document.getElementById("opponent-unit-one"), document.getElementById("opponent-unit-two"), document.getElementById("opponent-unit-three"), document.getElementById("opponent-unit-four")];
+			var playerPaletteButtons = [document.getElementById("player-button-zero"), document.getElementById("player-button-one"), document.getElementById("player-button-two"), document.getElementById("player-button-three"), document.getElementById("player-button-four")];
 			
 			// Constants for drawing the board
 			var MIN = 5;
@@ -73,6 +73,7 @@
 			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
 			var EMPTY_ID = 0;
 			var PlayerColors = Object.freeze({WHITE: 0, BLACK: 1});
+			var PALETTE_MAX_LENGTH = 5;
 			
 			// Click state tracking
 			var ClickStates = Object.freeze({NO_PREVIOUS_CLICK: 0, AWAITING_CLICK_FOR_MOVEMENT: 1, AWAITING_CLICK_FOR_DEPLOYMENT: 2});
@@ -90,8 +91,8 @@
 			var board = new Array(WIDTH);
 			var playerMana = 0;
 			var opponentMana = 0;
-			var playerPalette = new Array(5);
-			var opponentPalette = new Array(5);
+			var playerPalette = new Array(PALETTE_MAX_LENGTH);
+			var opponentPalette = new Array(PALETTE_MAX_LENGTH);
 			var deployedThisTurn = false;
 			
 			// Constructor for a Piece
@@ -151,14 +152,39 @@
 			
 			// fill all user-facing interface elements
 			function updateInterface(){
+				// update the turn indicators
 				if(currentTurn == PlayerColors.WHITE){
 					turnIndicator.innerHTML = "Turn: WHITE";
 				} else {
 					turnIndicator.innerHTML = "Turn: BLACK";
 				}
 				turnNumberIndicator.innerHTML = "Turn " + currentTurnNumber;
+				
+				// update mana indicators
 				playerManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerMana;
 				opponentManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentMana;
+				
+				// update palettes
+				for(var i = 0; i < PALETTE_MAX_LENGTH; i++){
+					if(i >= playerPalette.length){ // hide unneeded palette cards
+						playerPaletteUnits[i].style.display = 'none';
+						playerPaletteButtons[i].style.display = 'none';
+					} else {
+						playerPaletteUnits[i].style.display = '';
+						playerPaletteButtons[i].style.display = '';
+						playerPaletteUnits[i].innerHTML = playerPalette[i].name + ' - ' + playerPalette[i].cost + ' Warp - (' + playerPalette[i].current + '/' + playerPalette[i].cap + ')';
+						playerPaletteButtons[i].disabled = false;
+						if((playerPalette[i].cost > playerMana) || (playerPalette[i].current == playerPalette[i].cap)){
+							playerPaletteButtons[i].disabled = true;
+						}
+					}
+					if(i >= opponentPalette.length){ // hide unneeded palette cards
+						opponentPaletteUnits[i].style.display = 'none';
+					} else {
+						opponentPaletteUnits[i].style.display = '';
+						opponentPaletteUnits.innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
+					}
+				}
 			}
 			
 			// end turn, handling all necessary cleanup
@@ -209,7 +235,7 @@
 				// TODO: then paint all the warpling occupied spaces - done
 				// TODO: then in handleClick do the appropriate logic there for sending the get request - done
 				// TODO: funelling the URL in from outside, of course - done
-				// TODO: also add code in handleUpdate to load the palette data
+				// TODO: also add code in handleUpdate to load the palette data - done
 				// TODO: and make updateInterface render the palettes (disable buttons based on cap, mana, and deployedThisTurn)
 			}
 			
@@ -313,9 +339,44 @@
 				currentTurn = new_state['active_color'];
 				currentTurnNumber = new_state['turn'];
 				
-				// TODO: get the mana totals for the players
+				// get players
+				var player;
+				var opponent;
+				var x = new_state['players'];
+				var y = new_state['players'][0];
+				if(new_state['players'][0]['color'] == playerColor){
+					player = new_state['players'][0];
+					opponent = new_state['players'][1];
+				} else {
+					player = new_state['players'][1];
+					opponent = new_state['players'][0];
+				}
 				
-				// TODO: get palette information for both players
+				// get the mana totals for both players
+				playerMana = player['warp'];
+				opponentMana = opponent['warp'];
+				
+				// get palette information for both players
+				playerPalette = new Array(player['palette'].length)
+				for(var i = 0; i < player['palette'].length; i++){
+					unit = player['palette'][i];
+					name = unit['name'];
+					type = unit['type'];
+					cost = unit['cost'];
+					current = unit['starting_amount'] - unit['current_amount'];
+					cap = unit['starting_amount'];
+					playerPalette[i] = new Unit(name, type, cost, current, cap);
+				}
+				opponentPalette = new Array(opponent['palette'].length)
+				for(var i = 0; i < opponent['palette'].length; i++){
+					unit = opponent['palette'][i];
+					name = unit['name'];
+					type = unit['type'];
+					cost = unit['cost'];
+					current = unit['starting_amount'] - unit['current_amount'];
+					cap = unit['starting_amount'];
+					opponentPalette[i] = new Unit(name, type, cost, current, cap);
+				}
 				
 				// reset click state
 				clickState = ClickStates.NO_PREVIOUS_CLICK;
