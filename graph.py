@@ -240,15 +240,35 @@ class Graph:
         for edge in self.mapping[node]:
             self.edit_edge(edge, BLOCKED)
 
+    def unblock_node(self, node):
+        """
+        Unblock a node off from the rest of the graph by editing the weight of all connecting edges to be 1.
+
+        :param node: the node to unblock.
+        :return: nothing.
+        """
+        for edge in self.mapping[node]:
+            self.edit_edge(edge, 1)
+
     def block_position(self, x, y):
         """
-        Block a node at the specified position from the rest of the graph.
+        Block a node at the specified position off from the rest of the graph.
 
         :param x: x coordinate of the node to block.
         :param y: y coordinate of the node to block.
         :return: nothing.
         """
         self.block_node(self.find_node_by_position(x, y))
+
+    def unblock_position(self, x, y):
+        """
+        Unblock a node at the specified position off from the rest of the graph.
+
+        :param x: x coordinate of the node to unblock.
+        :param y: y coordinate of the node to unblock.
+        :return: nothing.
+        """
+        self.unblock_node(self.find_node_by_position(x, y))
 
     def get_edges(self):
         """

@@ -48,8 +48,14 @@ def make_game():
     game.turn = 1
     return game
 
-
-
+def single_unit_game(unit_type):
+    game = Game()
+    game.players = [Player(WHITE), Player(BLACK)]
+    game.players[0].add_card(unit_type, 1)
+    game.players[0].warp = 100
+    game.active_color = WHITE
+    game.deploy(unit_type, WHITE, BOARD_LENGTH/2, BOARD_HEIGHT/2, False)
+    return game
 
 class GameTest(unittest.TestCase):
 
@@ -66,47 +72,7 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.board[9][8], BLACK_TILE)
         self.assertEqual(len(game.units), 32)
 
-    def test_graph(self):
-        my_graph = Graph()
-        my_graph.add_new_node(0, 0)
-        my_graph.add_new_node(-1, 1)
-        my_graph.add_new_node(0, 1)
-        my_graph.add_new_node(1,1)
-        my_graph.add_new_node(-1, 2)
-        my_graph.add_new_node(0, 2)
-        my_graph.add_new_node(1,2)
-        my_graph.connect_adjacent_nodes()
-
-        self.assertTrue(my_graph.find_node_by_position(0, 0) is not None)
-        self.assertTrue(my_graph.find_node_by_position(1, 1) is not None)
-        self.assertEquals(my_graph.num_nodes(), 7)
-        self.assertEquals(my_graph.num_edges(), 8)
-
-        self.assertTrue(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(0, 1)))
-        self.assertFalse(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 1)))
-
-        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(1, 1), my_graph.find_node_by_position(-1, 1)), 2)
-        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 2)), 3)
-        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 1), my_graph.find_node_by_position(0, 1)), 0)
-        my_graph.block_node(my_graph.find_node_by_position(-1, 1))
-        my_graph.block_node(my_graph.find_node_by_position(0, 2))
-        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(-1, 2)), BLOCKED)
-
-        my_graph.connect_all_to(my_graph.find_node_by_position(0,0))
-        self.assertEquals(my_graph.num_nodes(), 7)
-        self.assertEquals(my_graph.num_edges(), 13)
-
-        my_new_graph = my_graph.copy()
-        self.assertEquals(my_new_graph.num_nodes(), 7)
-        self.assertEquals(my_new_graph.num_edges(), 13)
-        for node in my_graph.mapping:
-            for other_node in my_graph.mapping:
-                copy_of_node = my_new_graph.find_node_by_ID(node.ID)
-                copy_of_other_node = my_new_graph.find_node_by_ID(other_node.ID)
-                if my_graph.are_neighbours(node, other_node):
-                    self.assertTrue(my_new_graph.are_neighbours(copy_of_node, copy_of_other_node))
-
-    def test_movement(self):
+    def test_basic_movement(self):
         game = test_game()
         ID = game.state_ID
         game.active_color = BLACK
@@ -125,6 +91,93 @@ class GameTest(unittest.TestCase):
         self.assertTrue(game.move(2, 5, 6))
         self.assertLess(ID, game.state_ID)
         self.assertEqual(game.board[5][6], BLACK_TILE)
+
+    def test_advanced_movement(self):
+        game = make_game()
+        game.active_color = WHITE
+        game.players[WHITE].warp = 100
+        game.deploy(BISHOP_TYPE, WHITE, 2, 2)
+        bishop = game.get_unit_by_position(2, 2)
+        self.assertTrue(game.move(bishop.ID, 4, 4))
+
+class UnitTest(unittest.TestCase):  # The Unit in UnitTest is for the Unit class
+
+    def setUp(self):
+        self.warpling = CARD_DICTIONARY[WARPLING_TYPE].copy()
+        self.knight = CARD_DICTIONARY[KNIGHT_TYPE].copy()
+        self.bishop = CARD_DICTIONARY[BISHOP_TYPE].copy()
+        self.rook = CARD_DICTIONARY[ROOK_TYPE].copy()
+        self.king = CARD_DICTIONARY[KING_TYPE].copy()
+        self.queen = CARD_DICTIONARY[QUEEN_TYPE].copy()
+
+    def test_bishop(self):
+        game = single_unit_game(BISHOP_TYPE)
+        x0 = BOARD_LENGTH/2
+        y0 = BOARD_HEIGHT/2
+        bishop = game.get_unit_by_position(x0, y0)
+        self.assertTrue(game.move(bishop.ID, x0 + 1, y0 + 1))
+        self.assertTrue(game.move(bishop.ID, x0 - 1, y0 - 1))
+        self.assertFalse(game.move(bishop.ID, x0, y0 - 1))
+        self.assertTrue(game.move(bishop.ID, x0, y0))
+        self.assertTrue(game.move(bishop.ID, x0 - 3, y0 + 3))
+
+    def test_rook(self):
+        game = single_unit_game(ROOK_TYPE)
+        x0 = BOARD_LENGTH/2
+        y0 = BOARD_HEIGHT/2
+        rook = game.get_unit_by_position(x0, y0)
+        self.assertTrue(game.move(rook.ID, x0 + 1, y0))
+        self.assertTrue(game.move(rook.ID, x0 - 2, y0))
+        self.assertTrue(game.move(rook.ID, x0 - 2, y0 + 3))
+        self.assertFalse(game.move(rook.ID, x0, y0))
+
+
+class GraphTest(unittest.TestCase):
+
+    def setUp(self):
+        self.graph = Graph()
+        self.graph.add_new_node(0, 0)
+        self.graph.add_new_node(-1, 1)
+        self.graph.add_new_node(0, 1)
+        self.graph.add_new_node(1,1)
+        self.graph.add_new_node(-1, 2)
+        self.graph.add_new_node(0, 2)
+        self.graph.add_new_node(1,2)
+        self.graph.connect_adjacent_nodes()
+
+    def test_set_up(self):
+        my_graph = self.graph
+        self.assertTrue(my_graph.find_node_by_position(0, 0) is not None)
+        self.assertTrue(my_graph.find_node_by_position(1, 1) is not None)
+        self.assertEquals(my_graph.num_nodes(), 7)
+        self.assertEquals(my_graph.num_edges(), 8)
+        self.assertTrue(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(0, 1)))
+        self.assertFalse(my_graph.are_neighbours(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 1)))
+
+    def test_copy(self):
+        my_graph = self.graph
+        my_graph.connect_all_to(my_graph.find_node_by_position(0,0))
+        self.assertEquals(my_graph.num_nodes(), 7)
+        self.assertEquals(my_graph.num_edges(), 13)
+
+        my_new_graph = my_graph.copy()
+        self.assertEquals(my_new_graph.num_nodes(), 7)
+        self.assertEquals(my_new_graph.num_edges(), 13)
+        for node in my_graph.mapping:
+            for other_node in my_graph.mapping:
+                copy_of_node = my_new_graph.find_node_by_ID(node.ID)
+                copy_of_other_node = my_new_graph.find_node_by_ID(other_node.ID)
+                if my_graph.are_neighbours(node, other_node):
+                    self.assertTrue(my_new_graph.are_neighbours(copy_of_node, copy_of_other_node))
+
+    def test_traversal_cost(self):
+        my_graph = self.graph
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(1, 1), my_graph.find_node_by_position(-1, 1)), 2)
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(1, 2)), 3)
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 1), my_graph.find_node_by_position(0, 1)), 0)
+        my_graph.block_node(my_graph.find_node_by_position(-1, 1))
+        my_graph.block_node(my_graph.find_node_by_position(0, 2))
+        self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(-1, 2)), BLOCKED)
 
 if __name__ == '__main__':
     unittest.main()

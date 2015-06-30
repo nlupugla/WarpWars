@@ -88,7 +88,8 @@ class Game:
             return False
         # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
         for node in movement.neighbourhood(end_node):
-            if movement.traversal_cost(node, end_node) < BLOCKED:
+            if movement.traversal_cost(start_node, node) < BLOCKED:
+            #if movement.traversal_cost(node, end_node) < BLOCKED:
                 return True
         # If they are all blocked, the move is illegal.
         return False
@@ -166,11 +167,14 @@ class Game:
         for key in self.units:
             unit = self.units[key]
             movement = unit.moves
-            for x in range(BOARD_LENGTH):
-                for y in range(BOARD_HEIGHT):
-                    if self.board[x][y] != EMPTY_TILE and (x, y) != (unit.x, unit.y):
-                        if movement.find_node_by_position(x, y) is not None:
-                            movement.block_position(x, y)
+            for node in movement.mapping:
+                x = node.x
+                y = node.y
+                if (0 <= x < BOARD_LENGTH) and (0 <= y < BOARD_HEIGHT):
+                    if self.board[x][y] == EMPTY_TILE or (x, y) == (unit.x, unit.y):
+                        movement.unblock_position(x, y)
+                    else:
+                        movement.block_position(x, y)
 
     def take(self, x, y):
         """
