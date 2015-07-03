@@ -21,27 +21,8 @@
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
 			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
-			<div id="player-unit-palette">
-				Your Palette:
-				<div id="player-unit-zero"></div>
-				<button id="player-button-zero" onclick="deploy(0)">Deploy!</button>
-				<div id="player-unit-one"></div>
-				<button id="player-button-one" onclick="deploy(1)">Deploy!</button>
-				<div id="player-unit-two"></div>
-				<button id="player-button-two" onclick="deploy(2)">Deploy!</button>
-				<div id="player-unit-three"></div>
-				<button id="player-button-three" onclick="deploy(3)">Deploy!</button>
-				<div id="player-unit-four"></div>
-				<button id="player-button-four" onclick="deploy(4)">Deploy!</button>
-			</div>
-			<div id="opponent-unit-palette">
-				Opponent's Palette:
-				<div id="opponent-unit-zero"></div>
-				<div id="opponent-unit-one"></div>
-				<div id="opponent-unit-two"></div>
-				<div id="opponent-unit-three"></div>
-				<div id="opponent-unit-four"></div>
-			</div>
+			<div id="player-unit-palette"></div>
+			<div id="opponent-unit-palette"></div>
 		</div>
 		<script type="text/javascript" src="{{ drawing_file }}" ></script>
 		<script type="text/javascript">
@@ -54,10 +35,8 @@
 			var turnNumberIndicator = document.getElementById("turn-number-indicator");
 			var playerManaIndicator = document.getElementById("player-mana-indicator");
 			var opponentManaIndicator = document.getElementById("opponent-mana-indicator");
-			// this is gross and I apologize for my sins
-			var playerPaletteUnits = [document.getElementById("player-unit-zero"), document.getElementById("player-unit-one"), document.getElementById("player-unit-two"), document.getElementById("player-unit-three"), document.getElementById("player-unit-four")];
-			var opponentPaletteUnits = [document.getElementById("opponent-unit-zero"), document.getElementById("opponent-unit-one"), document.getElementById("opponent-unit-two"), document.getElementById("opponent-unit-three"), document.getElementById("opponent-unit-four")];
-			var playerPaletteButtons = [document.getElementById("player-button-zero"), document.getElementById("player-button-one"), document.getElementById("player-button-two"), document.getElementById("player-button-three"), document.getElementById("player-button-four")];
+			var playerPaletteContainer = document.getElementById("player-unit-palette");
+			var opponentPaletteContainer = document.getElementById("opponent-unit-palette");
 			
 			// Constants for drawing the board
 			var MIN = 5;
@@ -143,26 +122,31 @@
 				playerManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerMana;
 				opponentManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentMana;
 				
+				// clear palette HTML
+				playerPaletteContainer.innerHTML = (playerPalette.length > 0 ? 'Your units:' : '');
+				opponentPaletteContainer.innerHTML = (opponentPalette.length > 0 ? 'Opponent\'s units:' : '');
+				
 				// update palettes
-				for(var i = 0; i < PALETTE_MAX_LENGTH; i++){
-					if(i >= playerPalette.length){ // hide unneeded palette cards
-						playerPaletteUnits[i].style.display = 'none';
-						playerPaletteButtons[i].style.display = 'none';
-					} else {
-						playerPaletteUnits[i].style.display = '';
-						playerPaletteButtons[i].style.display = '';
-						playerPaletteUnits[i].innerHTML = playerPalette[i].name + ' - ' + playerPalette[i].cost + ' Warp - (' + playerPalette[i].current + '/' + playerPalette[i].cap + ')';
-						playerPaletteButtons[i].disabled = false;
-						if((deployedThisTurn) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == playerPalette[i].cap)){
-							playerPaletteButtons[i].disabled = true;
-						}
+				for(var i = 0; i < playerPalette.length; i++){
+					var newDiv = document.createElement('div');
+					newDiv.className = 'player-palette-item';
+					newDiv.innerHTML = playerPalette[i].name + ' - ' + playerPalette[i].cost + ' Warp - (' + playerPalette[i].current + '/' + playerPalette[i].cap + ')';
+					var newButton = document.createElement('button');
+					newButton.className = 'player-button-item';
+					// and all this for a closure
+					newButton.onclick = (function(x){return function(){deploy(x);};})(i);
+					newButton.innerHTML = 'Deploy!';
+					if((deployedThisTurn) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == 0)){
+						newButton.disabled = true;
 					}
-					if(i >= opponentPalette.length){ // hide unneeded palette cards
-						opponentPaletteUnits[i].style.display = 'none';
-					} else {
-						opponentPaletteUnits[i].style.display = '';
-						opponentPaletteUnits[i].innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
-					}
+					
+					playerPaletteContainer.appendChild(newDiv);
+					playerPaletteContainer.appendChild(newButton);
+				}
+				for(var i = 0; i < opponentPalette.length; i++){
+					var newDiv = document.createElement('div');
+					newDiv.className = 'palette-item';
+					newDiv.innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
 				}
 			}
 			
@@ -174,7 +158,7 @@
 			// handle deploy button clicks
 			function deploy(unitNumber){
 				// check for shenanigans
-				if((unitNumber < 0) || (unitNumber > 4)){
+				if((unitNumber < 0) || (unitNumber >= playerPalette.length)){
 					return;
 				}
 				unit = playerPalette[unitNumber];
@@ -182,8 +166,8 @@
 				if((currentTurn != playerColor) || (deployedThisTurn)){
 					return;
 				}
-				// check that the player has enough mana and that the unit isn't at its cap
-				if((unit.cost > playerMana) || (unit.current >= unit.cap)){ 
+				// check that the player has enough mana and that the unit hasn't run out yet
+				if((unit.cost > playerMana) || (unit.current <= 0)){ 
 					return;
 				}
 				
@@ -332,7 +316,7 @@
 					name = unit['name'];
 					type = unit['type'];
 					cost = unit['cost'];
-					current = (unit['starting_amount'] - unit['current_amount']);
+					current = unit['current_amount'];
 					cap = unit['starting_amount'];
 					playerPalette[i] = new Unit(name, type, cost, current, cap);
 				}
@@ -342,7 +326,7 @@
 					name = unit['name'];
 					type = unit['type'];
 					cost = unit['cost'];
-					current = unit['starting_amount'] - unit['current_amount'];
+					current = unit['current_amount'];
 					cap = unit['starting_amount'];
 					opponentPalette[i] = new Unit(name, type, cost, current, cap);
 				}
