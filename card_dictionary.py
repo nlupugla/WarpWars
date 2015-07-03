@@ -89,7 +89,7 @@ gold_general.moves = Graph()
 for x in range(-1, 1):
     for y in range(0, 1):
         gold_general.moves.add_new_node(x, y)
-gold_general.moves.add_new_node((0, -1))
+gold_general.moves.add_new_node(0, -1)
 gold_general.moves.connect_adjacent_nodes()
 
 CARD_DICTIONARY = {
