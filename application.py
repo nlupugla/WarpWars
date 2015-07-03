@@ -31,7 +31,7 @@ app = Flask(__name__)
 app.secret_key = DEBUG_SECRET_KEY
 
 # master list of all currently running games; list of their states
-app.games = {}
+games = {}
 
 @app.route('/')
 def root():
@@ -56,13 +56,13 @@ def create_game(game_id):
     """
     # don't clobber existing games
     # TODO: make this more robust somehow
-    if game_id in app.games: return redirect(url_for('root'))
+    if game_id in games: return redirect(url_for('root'))
 
     # set this player as black
     session['color-' + str(game_id)] = BLACK
 
     # actually create the game
-    app.games[game_id] = make_game() #test_game()
+    games[game_id] = make_game() #test_game()
 
     return redirect('/game/' + str(game_id))
 
@@ -78,7 +78,7 @@ def join_game(game_id, color):
     :return: a redirect to '/game/<game_id>' or '/'
     """
     # can only join games that actually exist
-    if game_id not in app.games: return redirect(url_for('root'))
+    if game_id not in games: return redirect(url_for('root'))
 
     # can only be white or black
     if color not in ('white', 'black'): return redirect(url_for('root'))
@@ -99,7 +99,7 @@ def game(game_id):
     :return: the html page displaying the game or a redirect to '/'
     """
     # if the given game doesn't exist, redirect to '/'
-    if game_id not in app.games: return redirect(url_for('root'))
+    if game_id not in games: return redirect(url_for('root'))
 
     drawing_file = generate_static_url('drawing.js')
     changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove last_state so client can fill it in
@@ -124,8 +124,8 @@ def game_update_move(game_id, unit_id, x, y):
     :param y: the y-coordinate the piece is moving to
     :return: whether or not the update succeeded, as JSON
     """
-    if game_id not in app.games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
-    app.games[game_id].move(unit_id, x, y)
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    games[game_id].move(unit_id, x, y)
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT) # maybe return game_status(game_id), or just wait for autoupdate?
 
 @app.route('/update/game/<int:game_id>/color/<int:color>/deploy/<int:unit_type>/to/<int:x>/<int:y>')
@@ -144,9 +144,9 @@ def game_update_deploy(game_id, color, unit_type, x, y):
     :param y: the y-coordinate to deploy the unit to
     :return: whether or not the deployment succeeded, as JSON
     """
-    if game_id not in app.games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
     if color != session['color-' + str(game_id)]: return format_response(STATUS_ERROR, ERROR_MASQUERADE)
-    app.games[game_id].deploy(unit_type, color, x, y)
+    games[game_id].deploy(unit_type, color, x, y)
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/update/game/<int:game_id>/end/turn')
@@ -157,8 +157,8 @@ def game_update_end_turn(game_id):
     :param game_id: the id of the game to update
     :return: whether or not the update succeeded, as JSON
     """
-    if game_id not in app.games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
-    app.games[game_id].next_turn()
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    games[game_id].next_turn()
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/changed/game/<int:game_id>/<int:last_state>')
@@ -170,8 +170,8 @@ def game_changed(game_id, last_state):
     :param last_state: the last state seen by the client
     :return: whether or not there is new state to be fetched or an error, as JSON
     """
-    if game_id not in app.games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
-    return dumps({'changed': True if app.games[game_id].state_ID > last_state else False}) # absolutely disgusting
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    return dumps({'changed': True if games[game_id].state_ID > last_state else False}) # absolutely disgusting
 
 @app.route('/state/game/<int:game_id>')
 def game_status(game_id):
@@ -183,8 +183,8 @@ def game_status(game_id):
     :param game_id: the id of the game whose status is to be fetched
     :return: the current game state or an error, as JSON
     """
-    if game_id not in app.games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
-    return app.games[game_id].state()
+    if game_id not in games: return format_response(STATUS_ERROR, ERROR_GAME_DNE)
+    return games[game_id].state()
 
 @app.errorhandler(404)
 def page_not_found(error):
