@@ -167,13 +167,19 @@ class Game:
         for key in self.units:
             unit = self.units[key]
             movement = unit.moves
+            # unblock nodes on the first pass
             for node in movement.mapping:
                 x = node.x
                 y = node.y
                 if (0 <= x < BOARD_LENGTH) and (0 <= y < BOARD_HEIGHT):
                     if self.board[x][y] == EMPTY_TILE or (x, y) == (unit.x, unit.y):
                         movement.unblock_position(x, y)
-                    else:
+            # block nodes on the second pass
+            for node in movement.mapping:
+                x = node.x
+                y = node.y
+                if (0 <= x < BOARD_LENGTH) and (0 <= y < BOARD_HEIGHT):
+                    if self.board[x][y] != EMPTY_TILE and (x, y) != (unit.x, unit.y):
                         movement.block_position(x, y)
 
     def take(self, x, y):
