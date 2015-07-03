@@ -55,7 +55,7 @@ for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
 rook.moves.connect_adjacent_nodes()
 
 queen = Unit()
-queen.moves = QUEEN_TYPE
+queen.type = QUEEN_TYPE
 queen.name = "Queen"
 queen.cost = 9
 queen.moves = Graph()
@@ -71,15 +71,26 @@ for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
 queen.moves.connect_adjacent_nodes()
 
 king = Unit()
-king.moves = KING_TYPE
+king.type = KING_TYPE
 king.name = "King"
 king.cost = 0
 king.moves = Graph()
 for x in range(-1, 2):
-    for y in range (-1, 2):
+    for y in range(-1, 2):
         king.moves.add_new_node(x, y)
 king.moves.connect_adjacent_nodes()
 king.moves.connect_diagonal_nodes()
+
+gold_general = Unit()
+gold_general.type = GOLD_GENERAL_TYPE
+gold_general.name = "Gold General"
+gold_general.cost = 6
+gold_general.moves = Graph()
+for x in range(-1, 1):
+    for y in range(0, 1):
+        gold_general.moves.add_new_node(x, y)
+gold_general.moves.add_new_node((0, -1))
+gold_general.moves.connect_adjacent_nodes()
 
 CARD_DICTIONARY = {
     WARPLING_TYPE: warpling,
@@ -87,5 +98,6 @@ CARD_DICTIONARY = {
     BISHOP_TYPE: bishop,
     ROOK_TYPE: rook,
     QUEEN_TYPE: queen,
-    KING_TYPE: king
+    KING_TYPE: king,
+    GOLD_GENERAL_TYPE: gold_general
 }
