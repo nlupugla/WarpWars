@@ -218,7 +218,7 @@ def generate_static_url(file_name):
     if DEBUG:
         return url_for('static', filename = file_name)
     else:
-        return file_name # the front-end proxy will handle it for us
+        return '/%s' % file_name # the front-end proxy will handle it for us
 
 # TODO: also send the color of the unit to be deployed/moved in the URL and check that against the player in the cookie
 # TODO: and the active player/unit color on the backend

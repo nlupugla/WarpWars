@@ -147,6 +147,8 @@
 					var newDiv = document.createElement('div');
 					newDiv.className = 'palette-item';
 					newDiv.innerHTML = opponentPalette[i].name + ' - ' + opponentPalette[i].cost + ' Warp - (' + opponentPalette[i].current + '/' + opponentPalette[i].cap + ')';
+					
+					opponentPaletteContainer.appendChild(newDiv);
 				}
 			}
 			
