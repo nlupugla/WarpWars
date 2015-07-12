@@ -109,6 +109,18 @@ def delete_game(game_id):
     games.pop(game_id)
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
+@app.route('/delete/game/all')
+def delete_all_games():
+    """
+    Delete all currently running games.
+
+    If no games exist no action will be taken.
+
+    :return: a JSON message indicating whether or not the delete succeeded
+    """
+    games.clear()
+    return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
+
 @app.route('/game/<int:game_id>')
 def game(game_id):
     """
