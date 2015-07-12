@@ -37,6 +37,9 @@ app.secret_key = DEBUG_SECRET_KEY
 # master list of all currently running games; list of their states
 games = {}
 
+# the game_id to use for the next game to be created
+next_id = 0
+
 @app.route('/')
 def root():
     """
@@ -51,19 +54,20 @@ def root():
     list_of_games = games.keys()
     return render_template(ROOT_TEMPLATE, ajax_file = ajax_file, num_games = num_games, games = list_of_games)
 
-@app.route('/create/game/<int:game_id>')
-def create_game(game_id):
+@app.route('/create/game')
+def create_game():
     """
-    Create a new game with the given game_id.
+    Create a new game.
 
-    If the indicated game already exists a redirect to '/' will be returned.
+    The new game will be created with game_id = next_id and next_id incremented.
 
-    :param game_id: the game_id for the game to be created
-    :return: a redirect to '/game/<game_id>' or '/'
+    :return: a redirect to '/game/<game_id>'
     """
-    # don't clobber existing games
-    # TODO: make this more robust somehow
-    if game_id in games: return redirect(url_for('root'))
+    global next_id
+
+    # book-keeping
+    game_id = next_id
+    next_id += 1
 
     # set this player as black
     session['color-' + str(game_id)] = BLACK
