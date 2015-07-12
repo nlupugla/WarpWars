@@ -20,6 +20,7 @@ STATUS_ERROR = 'error'
 ERROR_GAME_DNE = 'game does not exist'
 ERROR_MASQUERADE = 'cannot perform actions as opponent'
 SUCCESS_DEFAULT = 'success'
+SUCCESS_GAME_DNE = 'game did not exist'
 
 DEBUG_SECRET_KEY = 'THIS IS A TESTING KEY; CHANGE WHEN DEPLOYING, YOU NUMBSKULL'
 
@@ -89,6 +90,22 @@ def join_game(game_id, color):
     session['color-' + str(game_id)] = WHITE if color == 'white' else BLACK
 
     return redirect('/game/' + str(game_id))
+
+@app.route('/delete/game/<int:game_id')
+def delete_game(game_id):
+    """
+    Delete the given game.
+
+    If the indicated game does not exist no action will be taken.
+
+    :param game_id: the game_id of the game to delete
+    :return: a JSON message indicating whether or not the delete succeeded
+    """
+    if game_id not in games: return format_response(STATUS_SUCCESS, SUCCESS_GAME_DNE)
+
+    del game[game_id]
+
+    return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/game/<int:game_id>')
 def game(game_id):
