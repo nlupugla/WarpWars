@@ -36,6 +36,7 @@ class Game:
         :return: nothing
         """
         self.turn += 1
+        self.phase = MOVE_PHASE
         self.active_color = int(not self.active_color)
         self.players[self.active_color].warp = (self.turn + self.turn % 2)/2  # Hearthstone style resources
         self.state_ID += 1
