@@ -38,11 +38,13 @@ def root():
     """
     Render the root page.
 
-    TODO: allow users to create/join games from here
+    TODO: allow users to create games from here
 
     :return: the html for the root page
     """
-    return render_template(ROOT_TEMPLATE)
+    num_games = len(games)
+    list_of_games = games.keys()
+    return render_template(ROOT_TEMPLATE, num_games = num_games, games = list_of_games)
 
 @app.route('/create/game/<int:game_id>')
 def create_game(game_id):
