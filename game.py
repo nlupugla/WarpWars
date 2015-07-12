@@ -18,7 +18,7 @@ class Game:
         """
         self.turn = 0  # 1 on the first turn, 2 on the second turn...
         self.active_color = WHITE  # color currently taking its turn
-        self.phase = QUEEN_PHASE  # int indicating current phase
+        self.phase = MOVE_PHASE  # int indicating current phase
         self.units = {}  # list of units in play key: unit_ID -> item: unit
         self.board = []  # 2d array of board elements
         for x in range(BOARD_LENGTH):
@@ -46,12 +46,7 @@ class Game:
 
         :return: nothing
         """
-        # draw and empty warp at the end of clean up phase
-        if self.phase == CLEAN_UP_PHASE:
-            inactive_player = self.players[not self.active_color]
-            inactive_player.warp = 0
-#            inactive_player.draw()
-        self.phase = (self.phase + 1)%3
+        self.phase = (self.phase + 1) % 3
         self.state_ID += 1
 
     def move_is_legal(self, unit_ID, x, y):
@@ -122,6 +117,7 @@ class Game:
             return False
         unit = self.units[unit_ID]
         self.place(unit, x, y)
+        self.next_phase()
         self.state_ID += 1
         return True
 
@@ -260,9 +256,12 @@ class Game:
         player.palette[unit_type].current_amount -= 1
         # initialize unit
         unit = CARD_DICTIONARY[unit_type].copy()
+        if self.players[color].flipped:
+            unit.moves.flip(0)
         unit.color = self.active_color
         self.n_units_deployed += 1
         unit.ID = self.n_units_deployed
+        # put the unit in play
         self.units[unit.ID] = unit
         deploy = True
         self.place(unit, x, y, deploy)

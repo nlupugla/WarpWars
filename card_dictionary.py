@@ -10,10 +10,7 @@ warpling.name = "Warpling"
 warpling.cost = 0
 warpling.moves = Graph()
 warpling.moves.add_new_node(0, 0)
-warpling.moves.add_new_node(1, 0)
 warpling.moves.add_new_node(0, 1)
-warpling.moves.add_new_node(-1, 0)
-warpling.moves.add_new_node(0, -1)
 warpling.moves.connect_adjacent_nodes()
 
 knight = Unit()

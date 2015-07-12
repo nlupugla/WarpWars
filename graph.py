@@ -360,6 +360,17 @@ class Graph:
         # Otherwise, recurse using the least costly unvisited node as the new start_node.
         return self.traversal_cost(best_unvisited_node, end_node, unvisited_nodes, visited_nodes, visit_costs)
 
+    def flip(self, y):
+        """
+        Flip a graph about a horizontal axis at the specified y-value.
+
+        Perform a reflection, ie: 180 degree rotation of the graph about a horizontal axis with the given y-value.
+        :param y: the height of the horizontal axis over which the graph will flip
+        :return: nothing
+        """
+        for node in self.mapping:
+            node.y = y - node.y
+
     def generate_dict(self):
         # TODO: This is not ready yet
         nodes = []

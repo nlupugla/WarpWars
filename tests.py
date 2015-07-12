@@ -22,7 +22,7 @@ def test_game():
 def make_game():
     # return a game with a checkers style arrangement of warplings.
     game = Game()
-    game.players = [Player(WHITE), Player(BLACK)]
+    game.players = [Player(WHITE), Player(BLACK, True)]
     for player in game.players:
         player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT/2)
         player.add_card(KNIGHT_TYPE, 7)
