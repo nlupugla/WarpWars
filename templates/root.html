@@ -3,16 +3,21 @@
 	<head>
 		<title>WARP WARS</title>
 	</head>
+	<script type="text/javascript" src="{{ ajax_file }}"></script>
 	<body>
 		<h1 id="header">WARP WARS</h1>
-		<div id="num-games">There are currently {{ num_games }} games running:</div>
-		<div id="game-list">
+		<div id="num-games">There are currently {{ num_games }} games running</div>
+		<ul id="game-list">
 			{% for game_number in games %}
-			<div class="game">{{ game_number }}
-				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/white'">Join as White</button>
-				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/black'">Join as Black</button>
-			</div>
+			<li class="game">Game #{{ game_number }}
+				<br/>
+				Join as:
+				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/white'">White</button>
+				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/black'">Black</button>
+				<br/>
+				<button class="delete-button" onclick="makeGetRequest('/delete/game/{{ game_number }}', function(){}); document.location = '/'">Delete</button>
+			</li>
 			{% endfor %}
-		</div>
+		</ul>
 	</body>
 </html>

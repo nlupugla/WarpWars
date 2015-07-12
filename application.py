@@ -106,9 +106,7 @@ def delete_game(game_id):
     :return: a JSON message indicating whether or not the delete succeeded
     """
     if game_id not in games: return format_response(STATUS_SUCCESS, SUCCESS_GAME_DNE)
-
-    del game[game_id]
-
+    games.pop(game_id)
     return format_response(STATUS_SUCCESS, SUCCESS_DEFAULT)
 
 @app.route('/game/<int:game_id>')
