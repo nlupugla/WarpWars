@@ -15,13 +15,14 @@
 				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/white'">White</button>
 				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/black'">Black</button>
 				<br/>
-				<button class="delete-button" onclick="makeGetRequest('/delete/game/{{ game_number }}', function(){}); document.location = '/'">Delete</button>
+				<button class="delete-button" onclick="makeGetRequest('/delete/game/{{ game_number }}', function(){}); document.location.reload(true)">Delete</button>
 			</li>
 			{% endfor %}
 		</ul>
 		<div id="actions">
-			<button id="reload-button" onclick="document.location = '/'">Reload</button>
-			<button id="delete-all-button" onclick="makeGetRequest('/delete/game/all', function(){}); document.location = '/'">Delete All Games</button>
+			<button id="reload-button" onclick="document.location.reload(true)">Reload</button>
+			<button id="create-game-button" onclick="document.location = '/create/game'">Create Game</button>
+			<button id="delete-all-button" onclick="makeGetRequest('/delete/game/all', function(){}); document.location.reload(true)">Delete All Games</button>
 		</div>
 	</body>
 </html>
