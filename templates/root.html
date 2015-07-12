@@ -6,7 +6,7 @@
 	<script type="text/javascript" src="{{ ajax_file }}"></script>
 	<body>
 		<h1 id="header">WARP WARS</h1>
-		<div id="num-games">There are currently {{ num_games }} games running</div>
+		<div id="num-games">There {% if num_games == 1 %}is{% else %}are{% endif %} currently {{ num_games }} game{% if num_games == 1%}{% else %}s{% endif %} running</div>
 		<ul id="game-list">
 			{% for game_number in games %}
 			<li class="game">Game #{{ game_number }}
@@ -19,5 +19,9 @@
 			</li>
 			{% endfor %}
 		</ul>
+		<div id="actions">
+			<button id="reload-button" onclick="document.location = '/'">Reload</button>
+			<button id="delete-all-button" onclick="makeGetRequest('/delete/game/all', function(){}); document.location = '/'">Delete All Games</button>
+		</div>
 	</body>
 </html>
