@@ -4,6 +4,15 @@
 		<title>WARP WARS</title>
 	</head>
 	<body>
-		<div><p>This will be cool later; for now we'll just leave this blank</p></div>
+		<h1 id="header">WARP WARS</h1>
+		<div id="num-games">There are currently {{ num_games }} games running:</div>
+		<div id="game-list">
+			{% for game_number in games %}
+			<div class="game">{{ game_number }}
+				<button class="join-button" onclick="/join/game/{{ game_number }}/as/white">Join as White</button>
+				<button class="join-button" onclick="/join/game/{{ game_number }}/as/black">Join as Black</button>
+			</div>
+			{% endfor %}
+		</div>
 	</body>
 </html>
