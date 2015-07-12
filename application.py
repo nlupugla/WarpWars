@@ -14,6 +14,9 @@ ROOT_TEMPLATE = 'root.html'
 GAME_TEMPLATE = 'game.html'
 ERROR_404_TEMPLATE = '404.html'
 
+AJAX_FILE = 'ajax.js'
+DRAWING_FILE = 'drawing.js'
+
 STATUS_SUCCESS = 'success'
 STATUS_ERROR = 'error'
 
@@ -43,9 +46,10 @@ def root():
 
     :return: the html for the root page
     """
+    ajax_file = generate_static_url(AJAX_FILE)
     num_games = len(games)
     list_of_games = games.keys()
-    return render_template(ROOT_TEMPLATE, num_games = num_games, games = list_of_games)
+    return render_template(ROOT_TEMPLATE, ajax_file = ajax_file, num_games = num_games, games = list_of_games)
 
 @app.route('/create/game/<int:game_id>')
 def create_game(game_id):
@@ -91,7 +95,7 @@ def join_game(game_id, color):
 
     return redirect('/game/' + str(game_id))
 
-@app.route('/delete/game/<int:game_id')
+@app.route('/delete/game/<int:game_id>')
 def delete_game(game_id):
     """
     Delete the given game.
@@ -120,13 +124,14 @@ def game(game_id):
     # if the given game doesn't exist, redirect to '/'
     if game_id not in games: return redirect(url_for('root'))
 
-    drawing_file = generate_static_url('drawing.js')
+    ajax_file = generate_static_url(AJAX_FILE)
+    drawing_file = generate_static_url(DRAWING_FILE)
     changed = url_for('game_changed', game_id = game_id, last_state = 0)[:-1] # remove last_state so client can fill it in
     state = url_for('game_status', game_id = game_id)
     end_turn = url_for('game_update_end_turn', game_id = game_id)
     color = session['color-' + str(game_id)]
-    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, state = state,
-                           changed = changed, end_turn = end_turn, player_color = color)
+    return render_template(GAME_TEMPLATE, game_id = game_id, drawing_file = drawing_file, ajax_file = ajax_file,
+                           state = state, changed = changed, end_turn = end_turn, player_color = color)
 
 @app.route('/update/game/<int:game_id>/move/<int:unit_id>/to/<int:x>/<int:y>')
 def game_update_move(game_id, unit_id, x, y):
