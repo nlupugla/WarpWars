@@ -9,8 +9,8 @@
 		<div id="game-list">
 			{% for game_number in games %}
 			<div class="game">{{ game_number }}
-				<button class="join-button" onclick="/join/game/{{ game_number }}/as/white">Join as White</button>
-				<button class="join-button" onclick="/join/game/{{ game_number }}/as/black">Join as Black</button>
+				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/white'">Join as White</button>
+				<button class="join-button" onclick="document.location = '/join/game/{{ game_number }}/as/black'">Join as Black</button>
 			</div>
 			{% endfor %}
 		</div>
