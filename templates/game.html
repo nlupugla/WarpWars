@@ -12,6 +12,7 @@
 		<div id="info-box">
 			<h2 id="game-id">Game ID: {{ game_id }}</h2>
 			<h2 id="turn-indicator">Turn: BLACK</h2>
+			<h3 id="phase-indicator">Phase: MOVE</h3>
 			<h3 id="turn-number-indicator">Turn 0</h3>
 			<h3 id="player-color-indicator">You are {% if player_color == 0 %} White {% else %} Black {% endif %}</h3>
 			<div id="mana-box">
@@ -32,6 +33,7 @@
 			
 			// DOM elements for interface
 			var turnIndicator = document.getElementById("turn-indicator");
+			var phaseIndicator = document.getElementById("phase-indicator");
 			var turnNumberIndicator = document.getElementById("turn-number-indicator");
 			var playerManaIndicator = document.getElementById("player-mana-indicator");
 			var opponentManaIndicator = document.getElementById("opponent-mana-indicator");
@@ -54,6 +56,7 @@
 			var PieceColors = Object.freeze({WHITE: 0, BLACK: 1, EMPTY: 2});
 			var EMPTY_ID = 0;
 			var PlayerColors = Object.freeze({WHITE: 0, BLACK: 1});
+			var Phases = Object.freeze({MOVE_PHASE: 0, DEPLOY_PHASE: 1});
 			var PALETTE_MAX_LENGTH = 5;
 			
 			// Click state tracking
@@ -68,6 +71,7 @@
 			var currentState = 0;
 			var playerColor = {{ player_color }}; // the player playing through this client
 			var currentTurn = PlayerColors.BLACK;
+			var currentPhase = Phases.MOVE_PHASE;
 			var currentTurnNumber = 1;
 			var board = new Array(WIDTH);
 			var playerMana = 0;
@@ -118,6 +122,13 @@
 				}
 				turnNumberIndicator.innerHTML = "Turn " + currentTurnNumber;
 				
+				// update the phase indicator
+				if(currentPhase == Phases.MOVE_PHASE){
+					phaseIndicator.innerHTML = "Phase: MOVE";
+				} else {
+					phaseIndicator.innerHTML = "Phase: DEPLOY";
+				}
+				
 				// update mana indicators
 				playerManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerMana;
 				opponentManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentMana;
@@ -136,7 +147,7 @@
 					// and all this for a closure
 					newButton.onclick = (function(x){return function(){deploy(x);};})(i);
 					newButton.innerHTML = 'Deploy!';
-					if((deployedThisTurn) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == 0)){
+					if((deployedThisTurn) || (currentPhase != Phases.DEPLOY_PHASE) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == 0)){
 						newButton.disabled = true;
 					}
 					
@@ -164,8 +175,8 @@
 					return;
 				}
 				unit = playerPalette[unitNumber];
-				// you can only deploy on your own turn and if you haven't yet deployed
-				if((currentTurn != playerColor) || (deployedThisTurn)){
+				// you can only deploy on your own turn, during the deploy phase, and if you haven't yet deployed
+				if((currentTurn != playerColor) || (deployedThisTurn) || (currentPhase != Phases.DEPLOY_PHASE)){
 					return;
 				}
 				// check that the player has enough mana and that the unit hasn't run out yet
@@ -195,7 +206,11 @@
 				var y = convertToGridCoord(event.y);
 
 				if(clickState == ClickStates.NO_PREVIOUS_CLICK){
-					// can only pieces on your own turn and if you are the active player
+					// can only move pieces if it's the move phase
+					if(currentPhase != Phases.MOVE_PHASE){
+						return;
+					}
+					// can only move pieces on your own turn and if you are the active player
 					if((board[x][y].color == currentTurn) && (playerColor == currentTurn)){
 						firstX = x;
 						firstY = y;
@@ -222,10 +237,9 @@
 						
 						// TODO: actually check the response code; probably shout at the user if the move was illegal somehow, etc
 						makeGetRequest('/update/game/' + {{ game_id }} + '/move/' + board[x][y].id + '/to/' + x + '/' + y, function(){});
-						// make the callback here endTurn()? - that way that will always happen after...
 						
-						// flip the turn
-						endTurn();
+						// flip the phase
+						currentPhase = Phases.DEPLOY_PHASE;
 					}
 					
 					// regardless of legality of the move, reset state and redraw
@@ -293,6 +307,9 @@
 				// set the current turn and turn number
 				currentTurn = new_state['active_color'];
 				currentTurnNumber = new_state['turn'];
+				
+				// set the current phase
+				currentPhase = new_state['phase'];
 				
 				// get players
 				var player;
