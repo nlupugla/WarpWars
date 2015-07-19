@@ -29,7 +29,6 @@ function drawText(text, x, y, fontSpec){
 	ctx.font = fontSpec;
 	ctx.fillStyle = "#000000";
 	ctx.fillText(text, x, y);
-	console.log('filling ' + text + ' at (' + x + ', ' + y + ')');
 }
 
 // draw a line between two points
