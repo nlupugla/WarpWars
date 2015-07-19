@@ -39,7 +39,7 @@ def make_game():
         for x in range(BOARD_LENGTH):
             if x not in {0, 2, 7, 9}:
                 game.deploy(WARPLING_TYPE, player.color, x, player.adjust(2), False)
-        player.warp = 0
+        player.warp = 1
 
         player.remove_card(WARPLING_TYPE)
         player.remove_card(KING_TYPE)
