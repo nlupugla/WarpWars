@@ -1,4 +1,5 @@
 from card import Card
+from constants import BOARD_HEIGHT
 
 class Player:
     """
@@ -28,6 +29,15 @@ class Player:
         :return: nothing
         """
         self.palette[unit_type] = Card(unit_type, amount)
+
+    def adjust(self, y):
+        """
+        Return the distance from the players end of the board to the given y-coordinate.
+
+        :param y: y position on the board
+        :return: how far that position is from the calling player
+        """
+        return y if not self.flipped else BOARD_HEIGHT - y - 1
 
     def generate_dict(self):
         """

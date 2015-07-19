@@ -7,6 +7,50 @@ from graph import Graph
 from constants import *
 from card_dictionary import CARD_DICTIONARY
 
+def make_game():
+    game = Game()
+    game.players = [Player(WHITE), Player(BLACK, True)]
+    for player in game.players:
+        player.warp = 1000
+        player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT)
+        player.add_card(KNIGHT_TYPE, 7)
+        player.add_card(BISHOP_TYPE, 7)
+        player.add_card(ROOK_TYPE, 5)
+        player.add_card(QUEEN_TYPE, 1)
+        player.add_card(KING_TYPE, 1)
+        player.add_card(GOLD_GENERAL_TYPE, 1)
+        player.add_card(SILVER_GENERAL_TYPE, 1)
+        player.add_card(PAWN_TYPE, 1)
+        player.add_card(LANCE_TYPE, 1)
+        player.add_card(PROMOTED_BISHOP_TYPE, 1)
+        player.add_card(PROMOTED_ROOK_TYPE, 1)
+
+        game.active_color = player.color
+        game.deploy(WARPLING_TYPE, player.color, 1, player.adjust(0), False)
+        game.deploy(ROOK_TYPE, player.color, 3, player.adjust(0), False)
+        game.deploy(KING_TYPE, player.color, 4, player.adjust(0), False)
+        game.deploy(QUEEN_TYPE, player.color, 5, player.adjust(0), False)
+        game.deploy(ROOK_TYPE, player.color, 6, player.adjust(0), False)
+        game.deploy(WARPLING_TYPE, player.color, 8, player.adjust(0), False)
+
+        game.deploy(WARPLING_TYPE, player.color, 0, player.adjust(1), False)
+        game.deploy(WARPLING_TYPE, player.color, 2, player.adjust(1), False)
+        game.deploy(SILVER_GENERAL_TYPE, player.color, 3, player.adjust(1), False)
+        game.deploy(GOLD_GENERAL_TYPE, player.color, 4, player.adjust(1), False)
+        game.deploy(GOLD_GENERAL_TYPE, player.color, 5, player.adjust(1), False)
+        game.deploy(SILVER_GENERAL_TYPE, player.color, 6, player.adjust(1), False)
+        game.deploy(WARPLING_TYPE, player.color, 7, player.adjust(1), False)
+        game.deploy(WARPLING_TYPE, player.color, 9, player.adjust(1), False)
+
+        for x in range(BOARD_LENGTH):
+            if x not in {0, 2, 7, 9}:
+                game.deploy(WARPLING_TYPE, player.color, x, player.adjust(2), False)
+        player.warp = 0
+
+    game.turn = 1
+    game.active_color = STARTING_PLAYER
+    return game
+
 def test_game():
     return_game = Game()
     return_game.players = [Player(WHITE), Player(BLACK)]
@@ -19,17 +63,18 @@ def test_game():
     return_game.turn = 1
     return return_game
 
-def make_game():
+def checkers_game():
     # return a game with a checkers style arrangement of warplings.
     game = Game()
     game.players = [Player(WHITE), Player(BLACK, True)]
     for player in game.players:
-        player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT/2)
+        player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT)
         player.add_card(KNIGHT_TYPE, 7)
         player.add_card(BISHOP_TYPE, 7)
         player.add_card(ROOK_TYPE, 5)
         player.add_card(QUEEN_TYPE, 1)
         player.add_card(KING_TYPE, 1)
+
     game.active_color = game.players[0].color
     for x in range(BOARD_LENGTH):
         for y in range(START_ZONE_HEIGHT):
@@ -37,6 +82,7 @@ def make_game():
                 game.deploy(KING_TYPE, game.active_color, x, y, False)
             elif (x % 2) == (y % 2):
                 game.deploy(WARPLING_TYPE, game.players[0].color, x, y, False)
+
     game.active_color = game.players[1].color
     for x in range(BOARD_LENGTH):
         for y in range(BOARD_HEIGHT - START_ZONE_HEIGHT, BOARD_HEIGHT):
@@ -44,6 +90,7 @@ def make_game():
                 game.deploy(KING_TYPE, game.active_color, x, y, False)
             elif x % 2 == (y - (BOARD_HEIGHT - START_ZONE_HEIGHT)) % 2:
                 game.deploy(WARPLING_TYPE, game.players[1].color, x, y, False)
+
     game.active_color = STARTING_PLAYER
     game.turn = 1
     return game
@@ -66,11 +113,15 @@ class GameTest(unittest.TestCase):
         self.assertEqual(game.units[1].x, 5)
         self.assertEqual(game.units[2].x, 6)
 
-        game = make_game()
+        game = checkers_game()
         self.assertEqual(game.board[0][0], WHITE_TILE)
         self.assertEqual(game.board[9][1], WHITE_TILE)
         self.assertEqual(game.board[9][8], BLACK_TILE)
         self.assertEqual(len(game.units), 32)
+
+        game = make_game()
+        self.assertTrue(game.get_unit_by_position(8, 2) is not None)
+        self.assertEqual(game.get_unit_by_position(5, 0).type, QUEEN_TYPE)
 
     def test_basic_movement(self):
         game = test_game()
@@ -97,7 +148,7 @@ class GameTest(unittest.TestCase):
         """
 
     def test_advanced_movement(self):
-        game = make_game()
+        game = checkers_game()
         game.active_color = WHITE
         game.players[WHITE].warp = 100
         game.deploy(BISHOP_TYPE, WHITE, 2, 2)
