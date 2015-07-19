@@ -21,6 +21,15 @@ function convertToCanvasCoord(input){
 	return input;
 }
 
+// draw text at a given location
+function drawText(text, x, y, fontSpec){
+	if(fontSpec === undefined){
+		fontSpec = "12 px sans-serif";
+	}
+	ctx.font = fontSpec;
+	ctx.fillText(text, x, y);
+}
+
 // draw a line between two points
 function drawLine(startX, startY, endX, endY){
 	ctx.beginPath();
@@ -98,7 +107,7 @@ function drawPiece(boardX, boardY, piece){
 			break;
 		case PieceTypes.KING:
 			drawPolygon([[x + STEP / 8, y + STEP / 8],[x + STEP / 2, y + STEP /2], [x + 7 * STEP / 8, y + STEP / 8], [x + 7 * STEP / 8, y + 7 * STEP / 8], [x + STEP / 8, y + 7 * STEP / 8]]);
-			drawCircle(x, y, 3/16, STEP / 2, false);
+			drawCircle(x, y, 3 * STEP / 16, STEP / 2, false);
 			break;
 		case PieceTypes.KNIGHT:
 			drawPolygon([[x + STEP / 8, y + 7 * STEP / 8], [x + STEP / 4, y + STEP / 8], [x + 3 * STEP / 8, y + STEP / 8], [x + 7 * STEP / 8, y + STEP / 4], [x + 7 * STEP / 8, y + 3 * STEP / 8], [x + STEP / 2, y + 3 * STEP / 8], [x + 3 * STEP / 4, y + 7 * STEP / 8]]);
@@ -115,6 +124,10 @@ function drawPiece(boardX, boardY, piece){
 			drawCircle(x, y, 3/16, STEP / 2, false);
 			drawCircle(x + STEP / 4, y + 3 * STEP / 16, 1/16, 0);
 			drawCircle(x + 3 * STEP / 4, y + 3 * STEP / 16, 1/16, 0);
+			break;
+		default:
+			drawCircle(x, y, 3 * STEP / 8, STEP / 2, false);
+			drawText(String(piece.type), x + 2 * STEP / 5, y + 2 * STEP / 5);
 			break;
 	}
 }
