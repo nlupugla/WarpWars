@@ -13,17 +13,11 @@ def make_game():
     for player in game.players:
         player.warp = 1000
         player.add_card(WARPLING_TYPE, BOARD_LENGTH*START_ZONE_HEIGHT)
-        player.add_card(KNIGHT_TYPE, 7)
-        player.add_card(BISHOP_TYPE, 7)
-        player.add_card(ROOK_TYPE, 5)
+        player.add_card(ROOK_TYPE, 2)
         player.add_card(QUEEN_TYPE, 1)
         player.add_card(KING_TYPE, 1)
-        player.add_card(GOLD_GENERAL_TYPE, 1)
-        player.add_card(SILVER_GENERAL_TYPE, 1)
-        player.add_card(PAWN_TYPE, 1)
-        player.add_card(LANCE_TYPE, 1)
-        player.add_card(PROMOTED_BISHOP_TYPE, 1)
-        player.add_card(PROMOTED_ROOK_TYPE, 1)
+        player.add_card(GOLD_GENERAL_TYPE, 2)
+        player.add_card(SILVER_GENERAL_TYPE, 2)
 
         game.active_color = player.color
         game.deploy(WARPLING_TYPE, player.color, 1, player.adjust(0), False)
@@ -46,6 +40,20 @@ def make_game():
             if x not in {0, 2, 7, 9}:
                 game.deploy(WARPLING_TYPE, player.color, x, player.adjust(2), False)
         player.warp = 0
+
+        player.remove_card(WARPLING_TYPE)
+        player.remove_card(KING_TYPE)
+        player.remove_card(QUEEN_TYPE)
+        player.remove_card(GOLD_GENERAL_TYPE)
+        player.remove_card(SILVER_GENERAL_TYPE)
+
+        player.add_card(SUPER_PAWN_TYPE, 6)
+        player.add_card(LANCE_TYPE, 5)
+        player.add_card(KNIGHT_TYPE, 4)
+        player.add_card(BISHOP_TYPE, 4)
+        player.add_card(ROOK_TYPE, 3)
+        player.add_card(PROMOTED_BISHOP_TYPE, 2)
+        player.add_card(PROMOTED_ROOK_TYPE, 1)
 
     game.turn = 1
     game.active_color = STARTING_PLAYER

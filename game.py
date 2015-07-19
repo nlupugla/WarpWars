@@ -85,7 +85,6 @@ class Game:
         # Now if the path to any node in the destination's neighbourhood is not blocked, the move is legal.
         for node in movement.neighbourhood(end_node):
             if movement.traversal_cost(start_node, node) < BLOCKED:
-            #if movement.traversal_cost(node, end_node) < BLOCKED:
                 return True
         # If they are all blocked, the move is illegal.
         return False
@@ -223,11 +222,6 @@ class Game:
             unit = self.get_unit_by_position(x, y)
             if unit is None or unit.type != WARPLING_TYPE or unit.color != player.color:
                 return False
-        """
-        # The destination must be an empty tile.
-        if self.board[x][y] != EMPTY_TILE:
-            return False
-        """
         # The player must have enough warp.
         if player.palette[unit_type].cost > player.warp:
             return False

@@ -30,6 +30,15 @@ class Player:
         """
         self.palette[unit_type] = Card(unit_type, amount)
 
+    def remove_card(self, unit_type):
+        """
+        Remove a card from the player's palette.
+
+        :param unit_type: the unit type to remove
+        :return: nothing
+        """
+        del self.palette[unit_type]
+
     def adjust(self, y):
         """
         Return the distance from the players end of the board to the given y-coordinate.

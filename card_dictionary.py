@@ -54,7 +54,7 @@ rook.moves.connect_adjacent_nodes()
 queen = Unit()
 queen.type = QUEEN_TYPE
 queen.name = "Queen"
-queen.cost = 9
+queen.cost = 0
 queen.moves = Graph()
 for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
     for y in range(-BOARD_HEIGHT, BOARD_HEIGHT + 1):
@@ -83,8 +83,8 @@ gold_general.type = GOLD_GENERAL_TYPE
 gold_general.name = "Gold General"
 gold_general.cost = 4
 gold_general.moves = Graph()
-for x in range(-1, 1):
-    for y in range(0, 1):
+for x in range(-1, 2):
+    for y in range(0, 2):
         gold_general.moves.add_new_node(x, y)
 gold_general.moves.add_new_node(0, -1)
 gold_general.moves.connect_adjacent_nodes()
@@ -94,7 +94,7 @@ silver_general.type = SILVER_GENERAL_TYPE
 silver_general.name = "Silver General"
 silver_general.cost = 2
 silver_general.moves = Graph()
-for x in range(-1, 1):
+for x in range(-1, 2):
     silver_general.moves.add_new_node(x, 1)
 silver_general.moves.add_new_node(0, 0)
 silver_general.moves.add_new_node(-1, -1)
@@ -110,22 +110,23 @@ for y in range(0, BOARD_HEIGHT + 1):
     lance.moves.add_new_node(0, y)
 lance.moves.connect_adjacent_nodes()
 
-pawn = Unit()
-pawn.type = PAWN_TYPE
-pawn.name = "Pawn"
-pawn.cost = 0
-pawn.moves = Graph()
-for y in range(0, 1):
-    pawn.moves.add_new_node(0, y)
-pawn.moves.connect_adjacent_nodes()
+super_pawn = Unit()
+super_pawn.type = SUPER_PAWN_TYPE
+super_pawn.name = "Super Pawn"
+super_pawn.cost = 1
+super_pawn.moves = Graph()
+super_pawn.moves.add_new_node(0, 0)
+for x in range(-1, 2):
+    super_pawn.moves.add_new_node(x, 1)
+super_pawn.moves.connect_adjacent_nodes()
 
 promoted_rook = Unit()
 promoted_rook.type = PROMOTED_ROOK_TYPE
 promoted_rook.name = "Promoted Rook"
 promoted_rook.cost = 7
 promoted_rook.moves = Graph()
-for x in range(-1, 1):
-    for y in range(-1, 1):
+for x in range(-1, 2):
+    for y in range(-1, 2):
         if x == y or x == -y:
             promoted_rook.moves.add_new_node(x, y)
 promoted_rook.moves.connect_diagonal_nodes()
@@ -145,8 +146,8 @@ for x in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
         if x == y or x == -y:
             promoted_bishop.moves.add_new_node(x, y)
 promoted_bishop.moves.connect_diagonal_nodes()
-for x in range(-1, 1):
-    for y in range(-1, 1):
+for x in range(-1, 2):
+    for y in range(-1, 2):
         if x == 0 or y == 0 and x != y:
             promoted_bishop.moves.add_new_node(x, y)
 promoted_bishop.moves.connect_adjacent_nodes()
@@ -161,7 +162,7 @@ CARD_DICTIONARY = {
     GOLD_GENERAL_TYPE: gold_general,
     SILVER_GENERAL_TYPE: silver_general,
     LANCE_TYPE: lance,
-    PAWN_TYPE: pawn,
+    SUPER_PAWN_TYPE: super_pawn,
     PROMOTED_ROOK_TYPE: promoted_rook,
     PROMOTED_BISHOP_TYPE: promoted_bishop
 }
