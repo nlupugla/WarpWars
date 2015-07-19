@@ -22,12 +22,15 @@ function convertToCanvasCoord(input){
 }
 
 // draw text at a given location
-function drawText(text, x, y, fontSpec){
+function drawText(text, x, y, color, fontSpec){
 	if(fontSpec === undefined){
 		fontSpec = "20px sans-serif";
 	}
+	if(color === undefined){
+		color = "#000000";
+	}
 	ctx.font = fontSpec;
-	ctx.fillStyle = "#000000";
+	ctx.fillStyle = color;
 	ctx.fillText(text, x, y);
 }
 
@@ -127,8 +130,10 @@ function drawPiece(boardX, boardY, piece){
 			drawCircle(x + 3 * STEP / 4, y + 3 * STEP / 16, 1/16, 0);
 			break;
 		default:
-			drawCircle(x, y, 3 / 8, STEP / 2, false);
-			drawText(String(piece.type), x + 2 * STEP / 5, y + STEP / 2);
+			drawCircle(x, y, 3 / 8, STEP / 2, (piece.color == PieceColors.WHITE ? false : true));
+			drawText(String(piece.type), x + 2 * STEP / 5, y + 11 * STEP / 20, (piece.color == PieceColors.WHITE ? "#000000" : "#ffffff"));
+			ctx.strokeStyle = (piece.color == PieceColors.WHITE ? "#000000" : "#ffffff");
+			drawCircle(x, y, 5 / 16, STEP / 2, false);
 			break;
 	}
 }
