@@ -15,10 +15,10 @@
 			<h3 id="phase-indicator">Phase: MOVE</h3>
 			<h3 id="turn-number-indicator">Turn 0</h3>
 			<h3 id="player-color-indicator">You are {% if player_color == 0 %} White {% else %} Black {% endif %}</h3>
-			<div id="mana-box">
-				<h4>MANA:</h4>
-				<h5 id="player-mana-indicator">WHITE: 0</h6>
-				<h5 id="opponent-mana-indicator">BLACK: 0</h6>
+			<div id="warp-box">
+				<h4>WARP:</h4>
+				<h5 id="player-warp-indicator">WHITE: 0</h6>
+				<h5 id="opponent-warp-indicator">BLACK: 0</h6>
 			</div>
 			<button id="update-button" onclick="makeGetRequest('{{ state }}', updateState)">UPDATE</button>
 			<button id="end-turn-button" onclick="endTurn()">END TURN</button>
@@ -36,8 +36,8 @@
 			var turnIndicator = document.getElementById("turn-indicator");
 			var phaseIndicator = document.getElementById("phase-indicator");
 			var turnNumberIndicator = document.getElementById("turn-number-indicator");
-			var playerManaIndicator = document.getElementById("player-mana-indicator");
-			var opponentManaIndicator = document.getElementById("opponent-mana-indicator");
+			var playerWarpIndicator = document.getElementById("player-warp-indicator");
+			var opponentWarpIndicator = document.getElementById("opponent-warp-indicator");
 			var playerPaletteContainer = document.getElementById("player-unit-palette");
 			var opponentPaletteContainer = document.getElementById("opponent-unit-palette");
 			
@@ -75,8 +75,8 @@
 			var currentPhase = Phases.MOVE_PHASE;
 			var currentTurnNumber = 1;
 			var board = new Array(WIDTH);
-			var playerMana = 0;
-			var opponentMana = 0;
+			var playerWarp = 0;
+			var opponentWarp = 0;
 			var playerPalette = new Array(PALETTE_MAX_LENGTH);
 			var opponentPalette = new Array(PALETTE_MAX_LENGTH);
 			var deployedThisTurn = false;
@@ -130,9 +130,9 @@
 					phaseIndicator.innerHTML = "Phase: DEPLOY";
 				}
 				
-				// update mana indicators
-				playerManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerMana;
-				opponentManaIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentMana;
+				// update warp indicators
+				playerWarpIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "WHITE: " : "BLACK: ") + playerWarp;
+				opponentWarpIndicator.innerHTML = (playerColor == PlayerColors.WHITE ? "BLACK: " : "WHITE: ") + opponentWarp;
 				
 				// clear palette HTML
 				playerPaletteContainer.innerHTML = (playerPalette.length > 0 ? 'Your units:' : '');
@@ -148,7 +148,7 @@
 					// and all this for a closure
 					newButton.onclick = (function(x){return function(){deploy(x);};})(i);
 					newButton.innerHTML = 'Deploy!';
-					if((deployedThisTurn) || (currentPhase != Phases.DEPLOY_PHASE) || (currentTurn != playerColor) || (playerPalette[i].cost > playerMana) || (playerPalette[i].current == 0)){
+					if((deployedThisTurn) || (currentPhase != Phases.DEPLOY_PHASE) || (currentTurn != playerColor) || (playerPalette[i].cost > playerWarp) || (playerPalette[i].current == 0)){
 						newButton.disabled = true;
 					}
 					
@@ -180,8 +180,8 @@
 				if((currentTurn != playerColor) || (deployedThisTurn) || (currentPhase != Phases.DEPLOY_PHASE)){
 					return;
 				}
-				// check that the player has enough mana and that the unit hasn't run out yet
-				if((unit.cost > playerMana) || (unit.current <= 0)){ 
+				// check that the player has enough Warp and that the unit hasn't run out yet
+				if((unit.cost > playerWarp) || (unit.current <= 0)){ 
 					return;
 				}
 				
@@ -325,9 +325,9 @@
 					opponent = new_state['players'][0];
 				}
 				
-				// get the mana totals for both players
-				playerMana = player['warp'];
-				opponentMana = opponent['warp'];
+				// get the warp totals for both players
+				playerWarp = player['warp'];
+				opponentWarp = opponent['warp'];
 				
 				// get palette information for both players
 				playerPalette = new Array(player['palette'].length)
