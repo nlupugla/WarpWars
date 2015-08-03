@@ -2,8 +2,6 @@ from unit import Unit
 from constants import *
 from graph import Graph
 
-# TODO: Add in abilities
-
 warpling = Unit()
 warpling.type = WARPLING_TYPE
 warpling.name = "Warpling"
@@ -77,6 +75,7 @@ for x in range(-1, 2):
         king.moves.add_new_node(x, y)
 king.moves.connect_adjacent_nodes()
 king.moves.connect_diagonal_nodes()
+king.abilities = ['barrier']
 
 gold_general = Unit()
 gold_general.type = GOLD_GENERAL_TYPE

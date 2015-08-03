@@ -263,7 +263,16 @@ class Game:
         return True
 
     def use_ability_is_legal(self, unit_ID, ability_name, **kwargs):
-        pass
+        unit = self.units[unit_ID]
+        x = kwargs['x']
+        y = kwargs['y']
+        if ability_name not in unit.abilities:
+            return False
+        if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT:
+            return False
+        if x < 0 or y < 0:
+            return False
+        return True
 
     def list_legal_use_abilities(self, unit_ID, ability_name, **kwargs):
         pass
@@ -277,12 +286,16 @@ class Game:
         list of arguments. Currently used key words are:
         x - an int specifying the x-coordinate of the ability's target.
         y - an int specifying the y-coordinate of the ability's target.
+        target - a string matching either 'friend', 'foe', or 'empty'
         :param ability_name: a string matching the name of one of the abilities in ABILITY_DICTIONARY
         :param kwargs: key word arguments
         :return: True of the ability was used successfully, false otherwise.
         """
+        if not self.use_ability_is_legal(unit_ID, ability_name, **kwargs):
+            return False
         ABILITY_DICTIONARY[ability_name](self, **kwargs)
         self.state_ID += 1
+        return True
 
 
     def get_unit_by_position(self, x, y):
