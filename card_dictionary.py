@@ -152,6 +152,12 @@ for x in range(-1, 2):
             promoted_bishop.moves.add_new_node(x, y)
 promoted_bishop.moves.connect_adjacent_nodes()
 
+barrier = Unit()
+barrier.type = BARRIER_TYPE
+barrier.name = 'barrier'
+barrier.cost = 0
+barrier.moves = Graph()
+
 CARD_DICTIONARY = {
     WARPLING_TYPE: warpling,
     KNIGHT_TYPE: knight,
@@ -164,5 +170,6 @@ CARD_DICTIONARY = {
     LANCE_TYPE: lance,
     SUPER_PAWN_TYPE: super_pawn,
     PROMOTED_ROOK_TYPE: promoted_rook,
-    PROMOTED_BISHOP_TYPE: promoted_bishop
+    PROMOTED_BISHOP_TYPE: promoted_bishop,
+    BARRIER_TYPE: barrier
 }

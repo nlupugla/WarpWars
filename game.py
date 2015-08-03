@@ -2,6 +2,7 @@ from json import dumps
 
 from constants import *
 from card_dictionary import CARD_DICTIONARY
+from ability_dictionary import ABILITY_DICTIONARY
 
 class Game:
     """
@@ -196,7 +197,7 @@ class Game:
                 return True
         return False
 
-    def deploy_is_legal(self, unit_type, color, x, y, normal=True):
+    def deploy_is_legal(self, unit_type, color, x, y, legal=True):
         """
         Return whether deploying a card to the specified destination is legal or not.
 
@@ -204,33 +205,31 @@ class Game:
         :param color: the color of the unit being deployed, WHITE or BLACK.
         :param x: x coordinate of deployment destination.
         :param y: y coordinate of deployment destination.
-        :param normal: When True, a unit must be deployed onto a friendly warpling.
+        :param legal: When True, the unit must be deployed legally, according to the rules.
         :return: True if the deploy is legal, False otherwise.
         """
-        # TODO: Do we want more specific return values or error messages?
         # The destination must not be off the board.
         if x + 1 > BOARD_LENGTH or y + 1 > BOARD_HEIGHT:
             return False
         if x < 0 or y < 0:
             return False
-        player = self.players[self.active_color]
-        # The color of the unit being deployed must match the active color.
-        if color != self.active_color:
-            return False
-        # If the deploy is normal, the destination must be a friendly warpling.
-        if normal:
+        if legal:
+            player = self.players[self.active_color]
+            # The color of the unit being deployed must match the active color.
+            if color != self.active_color:
+                return False
             unit = self.get_unit_by_position(x, y)
             if unit is None or unit.type != WARPLING_TYPE or unit.color != player.color:
                 return False
-        # The player must have enough warp.
-        if player.palette[unit_type].cost > player.warp:
-            return False
-        # The player must have enough cards in their palette of the card type.
-        if player.palette[unit_type].current_amount < 1:
-            return False
+            # The player must have enough warp.
+            if player.palette[unit_type].cost > player.warp:
+                return False
+            # The player must have enough cards in their palette of the card type.
+            if player.palette[unit_type].current_amount < 1:
+                return False
         return True
 
-    def deploy(self, unit_type, color, x, y, normal=True):
+    def deploy(self, unit_type, color, x, y, legal=True):
         """
         Deploy a unit onto the board.
 
@@ -238,17 +237,17 @@ class Game:
         :param color: the color of the unit being deployed, WHITE or BLACK.
         :param x: x coordinate of deployment destination.
         :param y: y coordinate of deployment destination.
-        :param normal: When True, a unit must be deployed onto a friendly warpling.
-        :return: True if the deploy is legal, False otherwise.
+        :param legal: When True, the unit must be deployed legally, according to the rules.
+        :return: True if the deploy was successful, False otherwise.
         """
-        legal = self.deploy_is_legal(unit_type, color, x, y, normal)
-        if not legal:
+        if not self.deploy_is_legal(unit_type, color, x, y, legal):
             return False
         player = self.players[self.active_color]
-        # decrease the player's warp by the cost of the unit.
-        player.warp -= player.palette[unit_type].cost
-        # decrement number of units of the type in the player's palette.
-        player.palette[unit_type].current_amount -= 1
+        if legal:
+            # decrease the player's warp by the cost of the unit.
+            player.warp -= player.palette[unit_type].cost
+            # decrement number of units of the type in the player's palette.
+            player.palette[unit_type].current_amount -= 1
         # initialize unit
         unit = CARD_DICTIONARY[unit_type].copy()
         if self.players[color].flipped:
@@ -262,6 +261,29 @@ class Game:
         self.place(unit, x, y, deploy)
         self.state_ID += 1
         return True
+
+    def use_ability_is_legal(self, unit_ID, ability_name, **kwargs):
+        pass
+
+    def list_legal_use_abilities(self, unit_ID, ability_name, **kwargs):
+        pass
+
+    def use_ability(self, unit_ID, ability_name, **kwargs):
+        """
+        Use a unit's ability.
+
+        The game uses ability_name as a key to locate and execute some code which functions as a units ability. The
+        design space for abilities should be as open as possible, so this function takes an arbitrary name-identified
+        list of arguments. Currently used key words are:
+        x - an int specifying the x-coordinate of the ability's target.
+        y - an int specifying the y-coordinate of the ability's target.
+        :param ability_name: a string matching the name of one of the abilities in ABILITY_DICTIONARY
+        :param kwargs: key word arguments
+        :return: True of the ability was used successfully, false otherwise.
+        """
+        ABILITY_DICTIONARY[ability_name](self, **kwargs)
+        self.state_ID += 1
+
 
     def get_unit_by_position(self, x, y):
         """

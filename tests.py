@@ -242,5 +242,14 @@ class GraphTest(unittest.TestCase):
         my_graph.block_node(my_graph.find_node_by_position(0, 2))
         self.assertEqual(my_graph.traversal_cost(my_graph.find_node_by_position(0, 0), my_graph.find_node_by_position(-1, 2)), BLOCKED)
 
+class AbilityTest(unittest.TestCase):
+
+    def test_barrier(self):
+        game = single_unit_game(KING_TYPE)
+        king_ID = 1
+        game.use_ability(king_ID, 'barrier', x=2, y=2)
+        self.assertEqual(game.get_unit_by_position(2, 2).type, BARRIER_TYPE)
+        print game.state()
+
 if __name__ == '__main__':
     unittest.main()
